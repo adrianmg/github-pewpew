@@ -8,9 +8,9 @@ function printWelcome() {
 
   if (name && description && version) {
     console.log(
-      `Welcome to ${style.greenBright(name)} v${version}! ${description}`
+      `Welcome to ${style.greenBright(`${name} v${version}`)} — ${description}!`
     );
-    console.log(description);
+    // console.log(description);
     console.log();
   }
 }
