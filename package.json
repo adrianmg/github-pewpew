@@ -1,7 +1,7 @@
 {
   "name": "github-pewpew",
   "version": "1.0.0",
-  "description": "Pew pew unnecessary GitHub repos",
+  "description": "Pew pew those unnecessary GitHub repos!",
   "main": "index.js",
   "bin": {
     "ghpew": "index.js"
@@ -30,6 +30,7 @@
   "homepage": "https://github.com/adrianmg/github-pewpew#readme",
   "dependencies": {
     "ansi-colors": "^4.1.1",
-    "enquirer": "^2.3.6"
+    "enquirer": "^2.3.6",
+    "ora": "^5.4.1"
   }
 }
