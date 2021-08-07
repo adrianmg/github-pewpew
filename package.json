@@ -1,0 +1,34 @@
+{
+  "name": "github-pewpew",
+  "version": "1.0.0",
+  "description": "Pew pew unnecessary GitHub repos",
+  "main": "index.js",
+  "bin": {
+    "ghpew": "index.js"
+  },
+  "scripts": {
+    "postInstall": "npm install ./ --global"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adrianmg/github-pewpew.git"
+  },
+  "keywords": [
+    "github",
+    "pewpew",
+    "utility",
+    "delete",
+    "repositories",
+    "cli"
+  ],
+  "author": "Adrian Mato",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/adrianmg/github-pewpew/issues"
+  },
+  "homepage": "https://github.com/adrianmg/github-pewpew#readme",
+  "dependencies": {
+    "ansi-colors": "^4.1.1",
+    "enquirer": "^2.3.6"
+  }
+}
