@@ -4,12 +4,15 @@ const fs = require('fs');
 const package = require('../package.json');
 const style = require('ansi-colors');
 const ora = require('ora');
+const { toUnicode } = require('punycode');
 
 const exec = promisify(childProcess.exec);
 
 const API_URL = 'https://api.github.com';
 const API_PAGINATION = 100;
 const PAT_URL = 'https://github.com/settings/tokens';
+const PAT_ERROR = `Oops! Check your account details. You can generate a PAT (scoped to 'delete_repo') on ${PAT_URL}`;
+const DELETE_ERROR = `Oops! This repository can't be deleted`;
 
 function printWelcome() {
   const name = package.name;
@@ -17,7 +20,8 @@ function printWelcome() {
   const version = package.version;
 
   if (name && description && version) {
-    console.log(`Welcome to ${style.greenBright(`${name} v${version}`)}`);
+    // console.log(`Welcome to ${style.bold(`${name} v${version}`)}`);
+    console.log(`${style.bold(`${name} v${version}`)}`);
     console.log(description);
     console.log();
   }
@@ -34,20 +38,18 @@ async function checkPermissions(username, pat) {
     const { stderr, stdout } = await exec(curl);
 
     if (!stdout.includes('delete_repo')) {
-      spinner.fail(
-        `Oops! Your PAT is missing 'delete_repo' permissions. Generate a new one on ${PAT_URL}`
-      );
-      process.exit(0);
+      spinner.fail(PAT_ERROR);
+
+      return false;
     }
 
     // TODO: store PAT config in system (encrypted with https://www.npmjs.com/package/cryptr) Shall this be a flag and question?
     spinner.succeed(`Permissions OK`);
     return true;
   } catch (error) {
-    spinner.fail(
-      `Oops! Check your account details. You can generate a PAT (scoped to 'delete_repo') on ${PAT_URL}`
-    );
-    process.exit(0);
+    spinner.fail(PAT_ERROR);
+
+    return false;
   }
 }
 
@@ -68,8 +70,29 @@ async function getRepositories(username, pat) {
   return repos;
 }
 
+async function deleteRepository(username, pat, repo) {
+  const spinner = ora(`${style.dim(`${repo}`)}`);
+  spinner.start();
+
+  const curl = `curl -I -u ${username}:${pat} -X DELETE ${API_URL}/repos/${repo} | grep HTTP/2`;
+  const { stdout } = await exec(curl);
+  const status = stdout.split(' ')[1];
+
+  if (status === '204') {
+    spinner.stopAndPersist({
+      symbol: ``,
+      text: `${style.strikethrough.dim(repo)}`,
+    });
+    return true;
+  } else {
+    spinner.fail(`${style.dim(`${repo} [ERROR]`)}`);
+    return false;
+  }
+}
+
 module.exports = {
   printWelcome,
   checkPermissions,
   getRepositories,
+  deleteRepository,
 };
