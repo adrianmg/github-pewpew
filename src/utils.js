@@ -9,6 +9,7 @@ const exec = promisify(childProcess.exec);
 
 const API_URL = 'https://api.github.com';
 const API_PAGINATION = 100;
+const PAT_URL = 'https://github.com/settings/tokens';
 
 function printWelcome() {
   const name = package.name;
@@ -23,24 +24,32 @@ function printWelcome() {
 }
 
 async function checkPermissions(username, pat) {
-  const spinner = ora(style.dim(`Checking permissions…`));
+  const spinner = ora(`Checking permissions…`);
   spinner.start();
 
-  const curl = `curl --head -u ${username}:${pat} ${API_URL}/users/${username} | grep x-oauth-scopes`;
+  const curl = `curl -s --head -u ${username}:${pat} ${API_URL}/users/${username} | grep x-oauth-scopes`;
   // TODO: test to check API still retrieves x-oauth-scopes and delete_repo
   // TODO: prevent and combine into logic the failure from grep when checking permissions
-  const { stdout } = await exec(curl);
 
-  if (!stdout.includes('delete_repo')) {
+  try {
+    const { stderr, stdout } = await exec(curl);
+
+    if (!stdout.includes('delete_repo')) {
+      spinner.fail(
+        `Oops! Your PAT is missing 'delete_repo' permissions. Generate a new one on ${PAT_URL}`
+      );
+      process.exit(0);
+    }
+
+    // TODO: store PAT config in system (encrypted with https://www.npmjs.com/package/cryptr) Shall this be a flag and question?
+    spinner.succeed(`Permissions OK`);
+    return true;
+  } catch (error) {
     spinner.fail(
-      `Oops! Check your account details. You can generate a PAT (scoped to 'delete_repo') on https://github.com/settings/tokens`
+      `Oops! Check your account details. You can generate a PAT (scoped to 'delete_repo') on ${PAT_URL}`
     );
     process.exit(0);
   }
-
-  // TODO: store PAT config in system (encrypted with https://www.npmjs.com/package/cryptr) Shall this be a flag and question?
-  spinner.succeed(`Permissions OK`);
-  return true;
 }
 
 async function getRepositories(username, pat) {
