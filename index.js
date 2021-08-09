@@ -13,7 +13,7 @@ const exec = promisify(childProcess.exec);
   utils.printWelcome();
 
   const gitUserEmail = (await exec('git config user.email')).stdout.trim();
-  console.log(`GitHub Login:`);
+  console.log(style.dim(`GitHub account:`));
   let res = await prompt([
     {
       type: 'input',
@@ -44,13 +44,13 @@ const exec = promisify(childProcess.exec);
       footer: '––—————––—————––—————––—————––—————',
       result: (value) => {
         if (value.length === 0) process.exit();
+        return value;
       },
-      choices: repositories,
+      choices: repositories.map(({ full_name }) => full_name),
     },
   ]);
 
   const reposToDelete = res.repos;
-  console.log(res);
   const repoCount = reposToDelete.length;
 
   res = await prompt({
