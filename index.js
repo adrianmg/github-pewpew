@@ -30,10 +30,9 @@ const exec = promisify(childProcess.exec);
   ]);
 
   await utils.checkPermissions(res.username, res.pat);
+
   const repositories = await utils.getRepositories(res.username, res.pat);
-
   console.log();
-
   res = await prompt([
     {
       type: 'autocomplete',
@@ -59,8 +58,8 @@ const exec = promisify(childProcess.exec);
     message: `Are you sure?`,
     choices: [
       `${style.redBright(
-        `Yes, delete selected ${
-          repoCount > 1 ? 'repos' : 'repo'
+        `Yes, delete ${
+          repoCount > 1 ? 'repositories' : 'repository'
         } (${repoCount})`
       )}`,
       'Cancel',
