@@ -13,16 +13,13 @@ const exec = promisify(childProcess.exec);
   utils.printWelcome();
 
   const gitUserEmail = (await exec('git config user.email')).stdout.trim();
-  // console.log(style.dim(`GitHub account:`));
+  console.log(style.dim(`GitHub account:`));
   let res = await prompt([
     {
       type: 'input',
       name: 'username',
       message: 'Username',
       default: gitUserEmail,
-      // format: (value) => {
-      //   return value;
-      // },
     },
     {
       type: 'password',
