@@ -29,7 +29,6 @@ async function checkPermissions(username, pat) {
 
   const curl = `curl -s --head -u ${username}:${pat} ${API_URL}/users/${username} | grep x-oauth-scopes`;
   // TODO: test to check API still retrieves x-oauth-scopes and delete_repo
-  // TODO: prevent and combine into logic the failure from grep when checking permissions
 
   try {
     const { stderr, stdout } = await exec(curl);
