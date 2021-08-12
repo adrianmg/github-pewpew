@@ -1,7 +1,11 @@
-# github-pew-pew (v1.0.0)
-🔫 Pew pew those unnecessary GitHub repos!
+# github-pew-pew (v1.0.1)
+> 🔫 Pew pew those unnecessary GitHub repos!
 
-![Preview of the tool](preview.gif "Preview of the tool")
+<p align="center">
+	<br>
+	<img src="preview.gif" alt="Preview of the tool" width="600">
+	<br>
+</p>
 
 Have you ever had too much fun with the GitHub API and ended up creating too many dummy repositories? Me too 😅!
 
@@ -14,9 +18,9 @@ Install it via `npm install github-pewpew` and use it running the command `ghpew
 Remember you will need a PAT (Personal Access Token) to authenticate with your GitHub account. You can generate a PAT scoped to 'delete_repo' on https://github.com/settings/tokens.
 
 ## Roadmap
-- [ ] Improve auth so you don't need to grab the PAT every time you run the tool
-- [ ] Advanced flags with: regex, --force
-- [ ] Add testing
+- Improve auth so you don't need to grab the PAT every time you run the tool
+- Advanced flags with: regex, --force
+- Add testing
 
 ## Questions? Ideas? Bugs?
 
