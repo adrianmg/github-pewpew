@@ -6,6 +6,10 @@
   "bin": {
     "ghpew": "index.js"
   },
+  "files": [
+    "index.js",
+    "src"
+  ],
   "preferGlobal": true,
   "scripts": {
     "postInstall": "npm install ./ --global"
