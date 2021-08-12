@@ -12,7 +12,6 @@ const API_URL = 'https://api.github.com';
 const API_PAGINATION = 100;
 const PAT_URL = 'https://github.com/settings/tokens';
 const PAT_ERROR = `Oops! Check your account details. You can generate a PAT (scoped to 'delete_repo') on ${PAT_URL}`;
-const DELETE_ERROR = `Oops! This repository can't be deleted`;
 
 function printWelcome() {
   const name = package.name;
@@ -20,7 +19,6 @@ function printWelcome() {
   const version = package.version;
 
   if (name && description && version) {
-    // console.log(`Welcome to ${style.bold(`${name} v${version}`)}`);
     console.log(`${style.bold(`${name} v${version}`)}`);
     console.log(description);
     console.log();
