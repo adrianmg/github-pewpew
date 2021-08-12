@@ -1,6 +1,6 @@
 {
   "name": "github-pewpew",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Pew pew those unnecessary GitHub repos!",
   "main": "index.js",
   "bin": {
