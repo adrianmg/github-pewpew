@@ -9,7 +9,7 @@
 <p align="center">
 	<br>
 	<img src="preview.gif" alt="Preview of the tool" width="550">
-	<br>
+	<br><br>
 </p>
 
 Have you ever had too much fun with the GitHub API and ended up creating too many dummy repos? Me too 😅!
