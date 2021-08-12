@@ -22,12 +22,12 @@
     "repositories",
     "cli"
   ],
-  "author": "Adrian Mato",
+  "author": "Adrian Mato (https://adrianmato.com)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/adrianmg/github-pewpew/issues"
   },
-  "homepage": "https://github.com/adrianmg/github-pewpew#readme",
+  "homepage": "https://github.com/adrianmg/github-pewpew",
   "dependencies": {
     "ansi-colors": "^4.1.1",
     "enquirer": "^2.3.6",
