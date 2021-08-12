@@ -7,11 +7,11 @@ Have you ever had too much fun with the GitHub API and ended up creating too man
 
 I made this little CLI tool over the weekend to clean up repositories quickly. I'm planning to add some flags and regexp to delete in bulk in the future. [Let me know](http://twitter.com/adrianmg) if that sounds interesting to you.
 
-## Install
+## Usage
 
-Simply run `npm install github-pewpew` and you are good to go. Remember you will need a PAT (Personal Access Token) to authenticate with your GitHub account.
+Install it via `npm install github-pewpew` and use it running **`ghpew`** in your terminal.
 
-You can generate a PAT scoped to 'delete_repo' on https://github.com/settings/tokens.
+Remember you will need a PAT (Personal Access Token) to authenticate with your GitHub account. You can generate a PAT scoped to 'delete_repo' on https://github.com/settings/tokens.
 
 ## Roadmap
 - [ ] Improve auth so you don't need to grab the PAT every time you run the tool
