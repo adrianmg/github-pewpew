@@ -1,5 +1,10 @@
-# github-pew-pew (v1.0.2)
-> 🔫 Pew pew those unnecessary GitHub repos!
+<p align="center">
+    <h1 align="center">🔫 github-pewpew</h1>
+    <p align="center">Pew pew those unnecessary GitHub repos!<br>Clean up your unused repositories within seconds from your CLI.</p>
+		<p align="center">
+		[![npm version](https://badge.fury.io/js/github-pewpew.svg)](//npmjs.com/package/github-pewpew)
+		</p>
+</p>
 
 <p align="center">
 	<br>
@@ -11,7 +16,7 @@ Have you ever had too much fun with the GitHub API and ended up creating too man
 
 I made this little CLI tool over the weekend to clean up repositories quickly. I'm planning to add some flags and regexp to delete in bulk in the future. [Let me know](http://twitter.com/adrianmg) if that sounds interesting to you.
 
-## Usage
+## Installation and usage
 
 Install it via `npm install github-pewpew` and use it running the command `ghpew` in your terminal.
 
@@ -24,6 +29,14 @@ Remember you will need a PAT (Personal Access Token) to authenticate with your G
 
 ## Questions? Ideas? Bugs?
 
-If you run into any issues or you'd like to share your thoughts, feel free to [open an issue](https://github.com/adrianmg/github-pewpew/issues) in this repository or hit me up on Twitter.
+If you run into any issues or you'd like to share your thoughts, feel free to [open an issue](https://github.com/adrianmg/github-pewpew/issues) in this repository or hit me up on [Twitter](https://twitter.com/adrianmg).
 
-Thanks!
+## Development
+
+To set up your environment to develop this tool, run `npm install`. You can run the tool by running `node index` in your terminal. Most of the functionality is in the `src/utils.js` file.
+
+You can also rename `.example.env	` to `.env` and add your PAT to it to speed up debugging.
+
+## License
+
+The tool is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
