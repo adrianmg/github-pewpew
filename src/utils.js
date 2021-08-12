@@ -4,7 +4,6 @@ const fs = require('fs');
 const package = require('../package.json');
 const style = require('ansi-colors');
 const ora = require('ora');
-const { toUnicode } = require('punycode');
 
 const exec = promisify(childProcess.exec);
 
