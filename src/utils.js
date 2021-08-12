@@ -59,7 +59,6 @@ async function getRepositories(username, pat) {
 
   const curl = `curl -u ${username}:${pat} ${API_URL}/user/repos?per_page=${API_PAGINATION}&type=owner`;
   const { stdout } = await exec(curl);
-  fs.writeFileSync('repos.js', stdout);
 
   const repos = JSON.parse(stdout);
   const count = repos.length;

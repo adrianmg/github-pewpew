@@ -46,9 +46,6 @@ const exec = promisify(childProcess.exec);
       message: 'Select repositories you want to delete:',
       limit: 10,
       multiple: true,
-      // format: (value) => {
-      //   return `${style.green(value)}`;
-      // },
       format: (value) => style.green(value),
       footer: '––—————––—————––—————––—————––————————————',
       result: (value) => {
