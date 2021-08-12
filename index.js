@@ -4,7 +4,8 @@ const { promisify } = require('util');
 const { prompt } = require('enquirer');
 const style = require('ansi-colors');
 const utils = require('./src/utils');
-require('dotenv').config();
+
+if (process.env.ENV === 'dev') require('dotenv').config();
 
 const exec = promisify(childProcess.exec);
 

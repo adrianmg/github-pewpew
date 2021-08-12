@@ -34,7 +34,9 @@
   "homepage": "https://github.com/adrianmg/github-pewpew",
   "dependencies": {
     "enquirer": "^2.3.6",
-    "ora": "^5.4.1",
+    "ora": "^5.4.1"
+  },
+  "devDependencies": {
     "dotenv": "^10.0.0"
   }
 }
