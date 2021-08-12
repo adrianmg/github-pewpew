@@ -9,7 +9,7 @@ I made this little CLI tool over the weekend to clean up repositories quickly. I
 
 ## Usage
 
-Install it via `npm install github-pewpew` and use it running **`ghpew`** in your terminal.
+Install it via `npm install github-pewpew` and use it running the command `ghpew` in your terminal.
 
 Remember you will need a PAT (Personal Access Token) to authenticate with your GitHub account. You can generate a PAT scoped to 'delete_repo' on https://github.com/settings/tokens.
 
