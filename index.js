@@ -73,7 +73,7 @@ const exec = promisify(childProcess.exec);
         message: `${style.redBright(
           `Yes, delete ${
             repoCount > 1 ? 'repositories' : 'repository'
-          } (${repoCount})`
+          } (${repoCount})`,
         )}`,
         value: true,
       },
