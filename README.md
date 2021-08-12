@@ -1,4 +1,4 @@
-# github-pew-pew (v0.5.0)
+# github-pew-pew (v1.0.0)
 🔫 Pew pew those unnecessary GitHub repos!
 
 ![Preview of the tool](preview.gif "Preview of the tool")
