@@ -2,7 +2,7 @@
     <h1 align="center">🔫 github-pewpew</h1>
     <p align="center">Pew pew those unnecessary GitHub repos!<br>Clean up your unused repositories within seconds from your CLI.</p>
 		<p align="center">
-		[![npm version](https://badge.fury.io/js/github-pewpew.svg)](//npmjs.com/package/github-pewpew)
+			<a href="https://badge.fury.io/js/github-pewpew"><img src="https://badge.fury.io/js/github-pewpew.svg" alt="npm version" height="18"></a>
 		</p>
 </p>
 
