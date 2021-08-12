@@ -29,7 +29,6 @@
   },
   "homepage": "https://github.com/adrianmg/github-pewpew",
   "dependencies": {
-    "ansi-colors": "^4.1.1",
     "enquirer": "^2.3.6",
     "ora": "^5.4.1",
     "dotenv": "^10.0.0"
