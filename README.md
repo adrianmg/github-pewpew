@@ -1,9 +1,9 @@
-# github-pew-pew (v1.0.1)
+# github-pew-pew (v1.0.2)
 > 🔫 Pew pew those unnecessary GitHub repos!
 
 <p align="center">
 	<br>
-	<img src="preview.gif" alt="Preview of the tool" width="600">
+	<img src="preview.gif" alt="Preview of the tool" width="500">
 	<br>
 </p>
 
