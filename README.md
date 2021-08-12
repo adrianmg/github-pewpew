@@ -20,6 +20,6 @@ Remember you will need a PAT (Personal Access Token) to authenticate with your G
 
 ## Questions? Ideas? Bugs?
 
-If you run into any issues or you'd like to share your thoughts, feel free to open a problem in this repository or hit me up on Twitter.
+If you run into any issues or you'd like to share your thoughts, feel free to [open an issue](https://github.com/adrianmg/github-pewpew/issues) in this repository or hit me up on Twitter.
 
 Thanks!
