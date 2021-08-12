@@ -8,11 +8,11 @@
 
 <p align="center">
 	<br>
-	<img src="preview.gif" alt="Preview of the tool" width="500">
+	<img src="preview-2.gif" alt="Preview of the tool" width="550">
 	<br>
 </p>
 
-Have you ever had too much fun with the GitHub API and ended up creating too many dummy repositories? Me too 😅!
+Have you ever had too much fun with the GitHub API and ended up creating too many dummy repos? Me too 😅!
 
 I made this little CLI tool over the weekend to clean up repositories quickly. I'm planning to add some flags and regexp to delete in bulk in the future. [Let me know](http://twitter.com/adrianmg) if that sounds interesting to you.
 
