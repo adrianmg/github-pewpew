@@ -22,12 +22,12 @@ async function auth() {
     clientId: CLIENT_ID,
     scopes: [SCOPE],
     async onVerification(verification) {
-      await console.log(
+      console.log(
         `${style.bold(`Open:`)} ${style.cyan(
           style.underline(verification.verification_uri)
         )}`
       );
-      await console.log(
+      console.log(
         `${style.bold('Code:')} ${verification.user_code} ${style.dim(
           'Copied to clipboard!'
         )}`
@@ -39,18 +39,15 @@ async function auth() {
   });
 
   const { token } = await auth({ type: 'oauth' });
-  process.env.GITHUB_TOKEN = token;
+  setConfig(token);
+
   spinner.stop();
+  console.log();
 
   return token;
 }
 
-function getAuthHeader() {
-  return `-H "Authorization: token ${process.env.GITHUB_TOKEN}"`;
-}
-
 async function getRepositories() {
-  console.log();
   const spinner = ora('Fetching repositories…');
   spinner.start();
 
@@ -84,8 +81,20 @@ async function deleteRepository(token, repo) {
   }
 }
 
+function getAuthHeader() {
+  return `-H "Authorization: token ${process.env.GITHUB_TOKEN}"`;
+}
+
+function setConfig(token) {
+  if (!token) return false;
+
+  process.env.GITHUB_TOKEN = token;
+  return true;
+}
+
 module.exports = {
   auth,
   getRepositories,
   deleteRepository,
+  setConfig,
 };

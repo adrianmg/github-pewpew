@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const style = require('ansi-colors');
+const { setConfig } = require('./github');
 
 const PACKAGE = require('../package.json');
 const PACKAGE_AUTHOR = 'adrianmg';
@@ -43,20 +44,23 @@ function getConfigDir(homeDir) {
   return configDir;
 }
 
-async function checkConfiguration() {
-  const test = path.join(HOMEDIR, `com.${PACKAGE_AUTHOR}.${PACKAGE.name}`);
-  console.log(HOMEDIR);
-  console.log(test);
-  await fs.readFile(HOMEDIR, (err, data) => {
-    if (err) {
-      throw err;
-    }
-    console.log(data);
-    return data;
-  });
+function loadConfig() {
+  const configExists = fs.existsSync(CONFIG_FILE);
+
+  if (configExists) {
+    let config = fs.readFileSync(CONFIG_FILE, 'utf8');
+    config = JSON.parse(config);
+
+    return setConfig(config.token);
+  } else {
+    return false;
+  }
+
+  if (!config) return false;
 }
 
 module.exports = {
   printWelcome,
   saveConfig,
+  loadConfig,
 };
