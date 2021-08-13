@@ -1,15 +1,19 @@
 #!/usr/bin/env node
-const { prompt } = require('enquirer');
 const style = require('ansi-colors');
-const utils = require('./src/utils');
-const github = require('./src/github');
+const { prompt } = require('enquirer');
+
+const { auth, getRepositories, deleteRepository } = require('./src/github');
+const { printWelcome, loadConfig, saveConfig } = require('./src/utils');
 
 (async function main() {
-  utils.printWelcome();
+  printWelcome();
 
-  await github.auth();
+  if (!loadConfig()) {
+    const token = await auth();
+    await saveConfig(token);
+  }
 
-  const repositories = await utils.getRepositories();
+  const repositories = await getRepositories();
   res = await prompt([
     {
       type: 'autocomplete',
@@ -21,7 +25,7 @@ const github = require('./src/github');
       footer: '––—————––—————––—————––—————––————————————',
       result: (value) => {
         if (value.length === 0) {
-          console.log(style.dim(` No repositories selected`));
+          console.log(style.dim(` No repositories selected.`));
           process.exit();
         }
         return value;
@@ -57,16 +61,17 @@ const github = require('./src/github');
   if (res.confirmDelete === 'Yes') {
     let deletedRepos = 0;
     for (const repo of reposToDelete) {
-      const status = await utils.deleteRepository(GITHUB_TOKEN, repo);
+      const status = await deleteRepository(repo);
       if (status) {
         deletedRepos++;
       }
     }
     const messageConfirm = `🔫 pew pew! ${deletedRepos} repositories deleted suscessfully.`;
     const messageRecover = `Recover repositories from github.com/settings/repositories`;
-    console.log(`${messageConfirm} ${style.dim(messageRecover)}`);
+    console.log(`${messageConfirm}`);
+    console.log(` ${style.dim(messageRecover)}`);
   } else {
-    console.log(`${style.dim('Rest assured, no repositories were deleted')}`);
+    console.log(`${style.dim('Rest assured, no repositories were deleted.')}`);
   }
 })().catch((err) => {
   console.error(err);

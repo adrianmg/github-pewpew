@@ -1,19 +1,18 @@
-const childProcess = require('child_process');
-const { promisify } = require('util');
 const fs = require('fs');
-const package = require('../package.json');
+const path = require('path');
 const style = require('ansi-colors');
-const ora = require('ora');
+const { setConfig } = require('./github');
 
-const exec = promisify(childProcess.exec);
-
-const API_URL = 'https://api.github.com';
-const API_PAGINATION = 100;
+const PACKAGE = require('../package.json');
+const PACKAGE_AUTHOR = 'adrianmg';
+const HOME_DIR = require('os').homedir();
+const CONFIG_DIR = getConfigDir(HOME_DIR);
+const CONFIG_FILE = path.join(CONFIG_DIR, 'auth.json');
 
 function printWelcome() {
-  const name = package.name;
-  const description = package.description;
-  const version = package.version;
+  const name = PACKAGE.name;
+  const description = PACKAGE.description;
+  const version = PACKAGE.version;
 
   if (name && description && version) {
     console.log(`${style.bold(`${name} v${version}`)}`);
@@ -22,47 +21,46 @@ function printWelcome() {
   }
 }
 
-function getAuth() {
-  return `-H "Authorization: token ${process.env.GITHUB_TOKEN}"`;
+async function saveConfig(token) {
+  const configuration = {
+    _: `This is your ${PACKAGE.name} credentials. DO NOT SHARE!`,
+    token: token,
+  };
+
+  if (!fs.existsSync(CONFIG_DIR)) fs.mkdirSync(CONFIG_DIR);
+  fs.writeFileSync(CONFIG_FILE, JSON.stringify(configuration), 'utf8');
+
+  return true;
 }
 
-async function getRepositories() {
-  console.log();
-  const spinner = ora('Fetching repositories…');
-  spinner.start();
+function getConfigDir(homeDir) {
+  const configDir = path.join(
+    homeDir,
+    process.platform === 'win32'
+      ? path.join('AppData', 'Roaming', PACKAGE_AUTHOR, PACKAGE.name)
+      : path.join('Library', `com.${PACKAGE_AUTHOR}.${PACKAGE.name}`)
+  );
 
-  const curl = `curl ${getAuth()} ${API_URL}/user/repos?per_page=${API_PAGINATION}`;
-  const { stdout } = await exec(curl);
-
-  const repos = JSON.parse(stdout);
-  const count = repos.length;
-  spinner.succeed(`${count} ${count > 1 ? 'repositories' : 'repository'} found`);
-
-  return repos;
+  return configDir;
 }
 
-async function deleteRepository(token, repo) {
-  const spinner = ora(`${style.dim(`${repo}`)}`);
-  spinner.start();
+function loadConfig() {
+  const configExists = fs.existsSync(CONFIG_FILE);
 
-  const curl = `curl ${getAuth} -X DELETE ${API_URL}/repos/${repo} | grep HTTP/2`;
-  const { stdout } = await exec(curl);
-  const status = stdout.split(' ')[1];
+  if (configExists) {
+    let config = fs.readFileSync(CONFIG_FILE, 'utf8');
+    config = JSON.parse(config);
 
-  if (status === '204') {
-    spinner.stopAndPersist({
-      symbol: ``,
-      text: `${style.strikethrough.dim(repo)}`,
-    });
-    return true;
+    return setConfig(config.token);
   } else {
-    spinner.fail(`${style.dim(`${repo} [ERROR]`)}`);
     return false;
   }
+
+  if (!config) return false;
 }
 
 module.exports = {
   printWelcome,
-  getRepositories,
-  deleteRepository,
+  saveConfig,
+  loadConfig,
 };
