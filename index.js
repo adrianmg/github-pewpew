@@ -68,7 +68,8 @@ const { printWelcome, loadConfig, saveConfig } = require('./src/utils');
     }
     const messageConfirm = `🔫 pew pew! ${deletedRepos} repositories deleted suscessfully.`;
     const messageRecover = `Recover repositories from github.com/settings/repositories`;
-    console.log(`${messageConfirm} ${style.dim(messageRecover)}`);
+    console.log(`${messageConfirm}`);
+    console.log(` ${style.dim(messageRecover)}`);
   } else {
     console.log(`${style.dim('Rest assured, no repositories were deleted.')}`);
   }
