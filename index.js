@@ -25,7 +25,7 @@ const { printWelcome, loadConfig, saveConfig } = require('./src/utils');
       footer: '––—————––—————––—————––—————––————————————',
       result: (value) => {
         if (value.length === 0) {
-          console.log(style.dim(` No repositories selected`));
+          console.log(style.dim(` No repositories selected.`));
           process.exit();
         }
         return value;
@@ -70,7 +70,7 @@ const { printWelcome, loadConfig, saveConfig } = require('./src/utils');
     const messageRecover = `Recover repositories from github.com/settings/repositories`;
     console.log(`${messageConfirm} ${style.dim(messageRecover)}`);
   } else {
-    console.log(`${style.dim('Rest assured, no repositories were deleted')}`);
+    console.log(`${style.dim('Rest assured, no repositories were deleted.')}`);
   }
 })().catch((err) => {
   console.error(err);
