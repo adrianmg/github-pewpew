@@ -65,7 +65,7 @@ async function deleteRepository(repo) {
   const spinner = ora(`${style.dim(`${repo}`)}`);
   spinner.start();
 
-  const curl = `curl ${getAuthHeader()} -X DELETE ${API_URL}/repos/${repo} | grep HTTP/2`;
+  const curl = `curl -I ${getAuthHeader()} -X DELETE ${API_URL}/repos/${repo} | grep HTTP/2`;
   const { stdout } = await exec(curl);
   const status = stdout.split(' ')[1];
 
