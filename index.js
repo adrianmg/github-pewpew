@@ -61,7 +61,7 @@ const { printWelcome, loadConfig, saveConfig } = require('./src/utils');
   if (res.confirmDelete === 'Yes') {
     let deletedRepos = 0;
     for (const repo of reposToDelete) {
-      const status = await deleteRepository(GITHUB_TOKEN, repo);
+      const status = await deleteRepository(repo);
       if (status) {
         deletedRepos++;
       }

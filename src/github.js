@@ -61,7 +61,7 @@ async function getRepositories() {
   return repos;
 }
 
-async function deleteRepository(token, repo) {
+async function deleteRepository(repo) {
   const spinner = ora(`${style.dim(`${repo}`)}`);
   spinner.start();
 
