@@ -1,42 +1,13 @@
 #!/usr/bin/env node
-const { createOAuthDeviceAuth } = require('@octokit/auth-oauth-device');
 const { prompt } = require('enquirer');
-const ora = require('ora');
-const clipboard = require('clipboardy');
 const style = require('ansi-colors');
 const utils = require('./src/utils');
+const github = require('./src/github');
 
 (async function main() {
   utils.printWelcome();
 
-  console.log(style.dim(`Sign in to GitHub:`));
-
-  const spinner = ora();
-  const CLIENT_ID = 'ed7c193c5b64ee06192a';
-  const auth = createOAuthDeviceAuth({
-    clientType: 'oauth-app',
-    clientId: CLIENT_ID,
-    scopes: ['delete_repo'],
-    async onVerification(verification) {
-      await console.log(
-        `${style.bold(`Open:`)} ${style.cyan(
-          style.underline(verification.verification_uri)
-        )}`
-      );
-      await console.log(
-        `${style.bold('Code:')} ${verification.user_code} ${style.dim(
-          'Copied to clipboard!'
-        )}`
-      );
-      clipboard.writeSync(verification.user_code);
-
-      spinner.start();
-    },
-  });
-
-  const { token } = await auth({ type: 'oauth' });
-  process.env.GITHUB_TOKEN = token;
-  spinner.stop();
+  await github.auth();
 
   const repositories = await utils.getRepositories();
   res = await prompt([
