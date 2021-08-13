@@ -1,15 +1,17 @@
 #!/usr/bin/env node
-const { prompt } = require('enquirer');
 const style = require('ansi-colors');
-const utils = require('./src/utils');
+const { prompt } = require('enquirer');
+
 const github = require('./src/github');
+const utils = require('./src/utils');
 
 (async function main() {
   utils.printWelcome();
 
-  await github.auth();
+  const token = await github.auth();
+  await utils.saveConfig(token);
 
-  const repositories = await utils.getRepositories();
+  const repositories = await github.getRepositories();
   res = await prompt([
     {
       type: 'autocomplete',
@@ -57,7 +59,7 @@ const github = require('./src/github');
   if (res.confirmDelete === 'Yes') {
     let deletedRepos = 0;
     for (const repo of reposToDelete) {
-      const status = await utils.deleteRepository(GITHUB_TOKEN, repo);
+      const status = await github.deleteRepository(GITHUB_TOKEN, repo);
       if (status) {
         deletedRepos++;
       }
