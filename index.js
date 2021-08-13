@@ -1,10 +1,10 @@
 #!/usr/bin/env node
+const { createOAuthDeviceAuth } = require('@octokit/auth-oauth-device');
 const { prompt } = require('enquirer');
 const ora = require('ora');
 const clipboard = require('clipboardy');
 const style = require('ansi-colors');
 const utils = require('./src/utils');
-const { createOAuthDeviceAuth } = require('@octokit/auth-oauth-device');
 
 (async function main() {
   utils.printWelcome();
