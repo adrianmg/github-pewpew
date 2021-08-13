@@ -8,7 +8,7 @@
 
 <p align="center">
 	<br>
-	<img src="preview.gif" alt="Preview of the tool" width="700">
+	<img src="./res/preview.gif" alt="Preview of the tool" width="700">
 	<br><br>
 </p>
 
