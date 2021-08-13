@@ -1,50 +1,21 @@
 #!/usr/bin/env node
-const childProcess = require('child_process');
-const { promisify } = require('util');
 const { prompt } = require('enquirer');
 const style = require('ansi-colors');
 const utils = require('./src/utils');
-
-if (process.env.ENV === 'dev') require('dotenv').config();
-
-const exec = promisify(childProcess.exec);
+const github = require('./src/github');
 
 (async function main() {
   utils.printWelcome();
 
-  const gitUserEmail = (await exec('git config user.email')).stdout.trim();
-  console.log(style.dim(`GitHub account:`));
-  let res = await prompt([
-    {
-      type: 'input',
-      name: 'username',
-      message: 'Username',
-      default: gitUserEmail,
-    },
-    {
-      type: 'password',
-      name: 'pat',
-      message: `Personal Access Token`,
-      default: process.env.PAT,
-      styles: { primary: style.green },
-    },
-  ]);
+  await github.auth();
 
-  const USERNAME = res.username;
-  const PAT = res.pat;
-
-  if ((await utils.checkPermissions(USERNAME, PAT)) === false) {
-    process.exit();
-  }
-
-  const repositories = await utils.getRepositories(USERNAME, PAT);
-  console.log();
+  const repositories = await utils.getRepositories();
   res = await prompt([
     {
       type: 'autocomplete',
       name: 'repos',
       message: 'Select repositories you want to delete:',
-      limit: 10,
+      limit: 12,
       multiple: true,
       format: (value) => style.green(value),
       footer: '––—————––—————––—————––—————––————————————',
@@ -71,9 +42,7 @@ const exec = promisify(childProcess.exec);
       {
         name: 'Yes',
         message: `${style.redBright(
-          `Yes, delete ${
-            repoCount > 1 ? 'repositories' : 'repository'
-          } (${repoCount})`,
+          `Yes, delete ${repoCount > 1 ? 'repositories' : 'repository'} (${repoCount})`
         )}`,
         value: true,
       },
@@ -88,7 +57,7 @@ const exec = promisify(childProcess.exec);
   if (res.confirmDelete === 'Yes') {
     let deletedRepos = 0;
     for (const repo of reposToDelete) {
-      const status = await utils.deleteRepository(USERNAME, PAT, repo);
+      const status = await utils.deleteRepository(GITHUB_TOKEN, repo);
       if (status) {
         deletedRepos++;
       }
