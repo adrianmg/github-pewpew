@@ -4,7 +4,7 @@ on:
     types: [released]
 jobs:
   build:
-    runs-on: ubuntu-latest 
+    runs-on: ubuntu-latest
     permissions: 
       contents: read
       packages: write 
@@ -24,8 +24,9 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           registry-url: 'https://npm.pkg.github.com'
-          # Defaults to the user or organization that owns the workflow file
-          scope: '@octocat'
+      # Waits for the npm registry cache to update
+      - run: sleep 30s  
+        shell: bash
       # Publish to GitHub Packages
       - run: npm publish
         env:
