@@ -9,23 +9,31 @@
 <p align="center">
 	<br>
 	<img src="./res/preview.gif" alt="Preview of the tool" width="700">
-	<br><br>
+	<br>
 </p>
 
+## Installation and Usage
+To install the latest version of github-pewpew CLI, run this command:
+```
+npm i -g github-pewpew
+```
+
+To quickly start using it, run the following command:
+```
+ghpew
+```
+
+
+## Why?
 Have you ever had too much fun with the GitHub API and ended up creating too many dummy repos? Me too 😅!
 
-I made this little CLI tool over the weekend to clean up repositories quickly. I'm planning to add some flags and regexp to delete in bulk in the future. [Let me know](http://twitter.com/adrianmg) if that sounds interesting to you.
+I made this little CLI tool to clean up repositories quickly. I'm planning to add some flags and regexp to delete in bulk in the future. [Let me know](http://twitter.com/adrianmg) if that sounds interesting to you.
 
-## Installation and usage
-
-Install it via `npm install github-pewpew` and use it running the command `ghpew` in your terminal.
-
-Remember you will need a PAT (Personal Access Token) to authenticate with your GitHub account. You can generate a PAT scoped to 'delete_repo' on https://github.com/settings/tokens.
-
-## Roadmap
-- Improve auth so you don't need to grab the PAT every time you run the tool
-- Advanced flags with: regex, --force
-- Add testing
+## TODO
+- `--force` flag to avoid confirmation
+- `--regex` flag to delete repos matching a regex
+- `--list` flag to delete repos from a comma-separated list
+- Add some testing 😊
 
 ## Questions? Ideas? Bugs?
 
@@ -33,10 +41,12 @@ If you run into any issues or you'd like to share your thoughts, feel free to [o
 
 ## Development
 
-To set up your environment to develop this tool, run `npm install`. You can run the tool by running `node index` in your terminal. Most of the functionality is in the `src/utils.js` file.
+To set up your environment to develop this tool, run `npm install`. You can run the tool by running `node index` in your terminal.
 
-You can also rename `.example.env	` to `.env` and add your PAT to it to speed up debugging.
+The file `src/github.js` contains the logic for the authentication  
+
+and `src/utils.` files.
 
 ## License
 
-The tool is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
+The tool is available as open-source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
