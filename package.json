@@ -10,10 +10,6 @@
     "index.js",
     "src"
   ],
-  "preferGlobal": true,
-  "scripts": {
-    "postInstall": "npm install ./ --global"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/adrianmg/github-pewpew.git"
