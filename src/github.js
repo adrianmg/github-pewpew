@@ -9,7 +9,7 @@ const exec = promisify(childProcess.exec);
 
 const CLIENT_ID = 'ed7c193c5b64ee06192a';
 const CLIENT_TYPE = 'oauth-app';
-const SCOPE = 'delete_repo';
+const SCOPE = ['delete_repo', 'repo'];
 const API_URL = 'https://api.github.com';
 const API_PAGINATION = 100;
 
@@ -19,7 +19,7 @@ async function auth() {
   const auth = createOAuthDeviceAuth({
     clientType: CLIENT_TYPE,
     clientId: CLIENT_ID,
-    scopes: [SCOPE],
+    scopes: SCOPE,
     async onVerification(verification) {
       UI.requestToken(spinner, verification);
 
@@ -39,6 +39,7 @@ async function getRepositories() {
   const spinner = UI.printGetRepositoriesStart();
 
   const curl = `curl ${getAuthHeader()} ${API_URL}/user/repos?per_page=${API_PAGINATION}`;
+  console.log(curl);
 
   const { stdout } = await exec(curl);
 
