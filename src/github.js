@@ -69,16 +69,17 @@ async function deleteRepository(repo) {
   const { stdout } = await exec(curl);
   const status = stdout.split(' ')[1];
 
-  if (status === '204') {
-    spinner.stopAndPersist({
-      symbol: ``,
-      text: `${style.strikethrough.dim(repo)}`,
-    });
-    return true;
-  } else {
+  if (status !== '204') {
     spinner.fail(`${style.dim(`${repo} [ERROR]`)}`);
     return false;
   }
+
+  spinner.stopAndPersist({
+    symbol: ``,
+    text: `${style.strikethrough.dim(repo)}`,
+  });
+
+  return true;
 }
 
 function getAuthHeader() {
