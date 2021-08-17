@@ -39,7 +39,6 @@ async function getRepositories() {
   const spinner = UI.printGetRepositoriesStart();
 
   const curl = `curl ${getAuthHeader()} ${API_URL}/user/repos?per_page=${API_PAGINATION}`;
-  console.log(curl);
 
   const { stdout } = await exec(curl);
 
