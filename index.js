@@ -3,7 +3,8 @@ const style = require('ansi-colors');
 const { prompt } = require('enquirer');
 
 const { auth, getRepositories, deleteRepository } = require('./src/github');
-const { printWelcome, loadConfig, saveConfig } = require('./src/utils');
+const { loadConfig, saveConfig } = require('./src/config');
+const { printWelcome } = require('./src/ui');
 
 (async function main() {
   printWelcome();
