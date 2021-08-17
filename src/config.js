@@ -1,25 +1,11 @@
 const fs = require('fs');
 const path = require('path');
-const style = require('ansi-colors');
 const { setConfig } = require('./github');
 
-const PACKAGE = require('../package.json');
-const PACKAGE_AUTHOR = 'adrianmg';
+const { package: PACKAGE, author: PACKAGE_AUTHOR } = getPackageDetails();
 const HOME_DIR = require('os').homedir();
 const CONFIG_DIR = getConfigDir(HOME_DIR);
 const CONFIG_FILE = path.join(CONFIG_DIR, 'auth.json');
-
-function printWelcome() {
-  const name = PACKAGE.name;
-  const description = PACKAGE.description;
-  const version = PACKAGE.version;
-
-  if (name && description && version) {
-    console.log(`${style.bold(`${name} v${version}`)}`);
-    console.log(description);
-    console.log();
-  }
-}
 
 async function saveConfig(token) {
   const configuration = {
@@ -55,12 +41,17 @@ function loadConfig() {
   } else {
     return false;
   }
+}
 
-  if (!config) return false;
+function getPackageDetails() {
+  return {
+    package: require('../package.json'),
+    author: 'adrianmg',
+  };
 }
 
 module.exports = {
-  printWelcome,
   saveConfig,
   loadConfig,
+  getPackageDetails,
 };
