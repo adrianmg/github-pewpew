@@ -5,6 +5,8 @@ const style = require('ansi-colors');
 const ora = require('ora');
 const clipboard = require('clipboardy');
 
+const UI = require('./ui');
+
 const exec = promisify(childProcess.exec);
 
 const CLIENT_ID = 'ed7c193c5b64ee06192a';
@@ -48,15 +50,15 @@ async function auth() {
 }
 
 async function getRepositories() {
-  const spinner = ora('Fetching repositories…');
-  spinner.start();
+  const spinner = UI.printGetRepositoriesStart();
 
   const curl = `curl ${getAuthHeader()} ${API_URL}/user/repos?per_page=${API_PAGINATION}`;
   const { stdout } = await exec(curl);
 
   const repos = JSON.parse(stdout);
   const count = repos.length;
-  spinner.succeed(`${count} ${count > 1 ? 'repositories' : 'repository'} found.`);
+
+  UI.printGetRepositoriesSucceed(spinner, count);
 
   return repos;
 }

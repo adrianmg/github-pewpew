@@ -1,4 +1,5 @@
 const style = require('ansi-colors');
+const ora = require('ora');
 const { prompt } = require('enquirer');
 
 const PACKAGE = require('./config').getPackageDetails().package;
@@ -26,6 +27,18 @@ async function promptGetRepositories(repositories) {
     format: (value) => style.green(value),
     choices: repositories.map(({ full_name }) => full_name),
   });
+}
+
+function printGetRepositoriesStart() {
+  const strMessage = `Fetching repositories…`;
+  return ora(strMessage).start();
+}
+
+function printGetRepositoriesSucceed(spinner, repoCount) {
+  const strMessage = `${repoCount} ${
+    repoCount > 1 ? 'repositories' : 'repository'
+  } found.`;
+  return spinner.succeed(strMessage);
 }
 
 async function promptConfirmDelete(repoCount) {
@@ -80,6 +93,8 @@ function printError(strError) {
 module.exports = {
   printWelcome,
   promptGetRepositories,
+  printGetRepositoriesStart,
+  printGetRepositoriesSucceed,
   promptConfirmDelete,
   printConfirmDelete,
   printNoReposDeleted,
