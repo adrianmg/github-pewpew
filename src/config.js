@@ -19,17 +19,6 @@ async function saveConfig(token) {
   return true;
 }
 
-function getConfigDir(homeDir) {
-  const configDir = path.join(
-    homeDir,
-    process.platform === 'win32'
-      ? path.join('AppData', 'Roaming', PACKAGE_AUTHOR, PACKAGE.name)
-      : path.join('Library', `com.${PACKAGE_AUTHOR}.${PACKAGE.name}`)
-  );
-
-  return configDir;
-}
-
 function loadConfig() {
   const configExists = fs.existsSync(CONFIG_FILE);
 
@@ -41,6 +30,17 @@ function loadConfig() {
   } else {
     return false;
   }
+}
+
+function getConfigDir(homeDir) {
+  const configDir = path.join(
+    homeDir,
+    process.platform === 'win32'
+      ? path.join('AppData', 'Roaming', PACKAGE_AUTHOR, PACKAGE.name)
+      : path.join('Library', `com.${PACKAGE_AUTHOR}.${PACKAGE.name}`)
+  );
+
+  return configDir;
 }
 
 function getPackageDetails() {
