@@ -1,8 +1,6 @@
 const style = require('ansi-colors');
 
-const { getPackageDetails } = require('./config');
-
-const PACKAGE = getPackageDetails().package;
+const PACKAGE = require('./config').getPackageDetails().package;
 
 function printWelcome() {
   const name = PACKAGE.name;
