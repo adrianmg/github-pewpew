@@ -2,9 +2,11 @@ const style = require('ansi-colors');
 const ora = require('ora');
 const { prompt } = require('enquirer');
 
-const PACKAGE = require('./config').getPackageDetails().package;
+const { getPackageDetails } = require('./utils');
 
 function printWelcome() {
+  const PACKAGE = getPackageDetails().package;
+
   const name = PACKAGE.name;
   const description = PACKAGE.description;
   const version = PACKAGE.version;
@@ -74,6 +76,23 @@ function printConfirmDelete(deletedRepos) {
   return true;
 }
 
+function printDeleteRepositoryStart(repo) {
+  return ora(style.dim(repo)).start();
+}
+
+function printDeleteRepositorySucceed(spinner, repo) {
+  return spinner.stopAndPersist({
+    symbol: '',
+    text: style.strikethrough.dim(repo),
+  });
+}
+
+function printDeleteRepositoryFailed(spinner, repo) {
+  strError = `${repo} [ERROR]`;
+
+  return spinner.fail(style.dim(strError));
+}
+
 function printNoReposDeleted() {
   const strMessage = `Rest assured, no repositories were deleted.`;
 
@@ -90,13 +109,44 @@ function printError(strError) {
   return console.log(style.redBright(strError));
 }
 
+function printAuthStart() {
+  const strSignIn = `Sign in to GitHub:`;
+  console.log(style.dim(strSignIn));
+
+  return ora();
+}
+
+async function requestToken(spinner, verification) {
+  const strOpen = `Open:`;
+  const strURL = verification.verification_uri;
+  const strCode = `Code:`;
+  const strCodeValue = verification.user_code;
+  const strClipboard = `Copied to clipboard!`;
+
+  console.log(`${style.bold(strOpen)} ${style.cyan.underline(strURL)}`);
+  console.log(`${style.bold(strCode)} ${strCodeValue} ${style.dim(strClipboard)}`);
+
+  return spinner.start();
+}
+
+function printAuthFinished(spinner) {
+  spinner.stop();
+  return console.log();
+}
+
 module.exports = {
   printWelcome,
+  printAuthStart,
+  requestToken,
+  printAuthFinished,
   promptGetRepositories,
   printGetRepositoriesStart,
   printGetRepositoriesSucceed,
   promptConfirmDelete,
   printConfirmDelete,
+  printDeleteRepositoryStart,
+  printDeleteRepositorySucceed,
+  printDeleteRepositoryFailed,
   printNoReposDeleted,
   printNoReposSelected,
   printError,

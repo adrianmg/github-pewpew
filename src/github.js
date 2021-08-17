@@ -1,8 +1,6 @@
 const { createOAuthDeviceAuth } = require('@octokit/auth-oauth-device');
 const { promisify } = require('util');
 const childProcess = require('child_process');
-const style = require('ansi-colors');
-const ora = require('ora');
 const clipboard = require('clipboardy');
 
 const UI = require('./ui');
@@ -16,35 +14,23 @@ const API_URL = 'https://api.github.com';
 const API_PAGINATION = 100;
 
 async function auth() {
-  console.log(style.dim(`Sign in to GitHub:`));
-  const spinner = ora();
+  const spinner = UI.printAuthStart();
 
   const auth = createOAuthDeviceAuth({
     clientType: CLIENT_TYPE,
     clientId: CLIENT_ID,
     scopes: [SCOPE],
     async onVerification(verification) {
-      console.log(
-        `${style.bold(`Open:`)} ${style.cyan(
-          style.underline(verification.verification_uri)
-        )}`
-      );
-      console.log(
-        `${style.bold('Code:')} ${verification.user_code} ${style.dim(
-          'Copied to clipboard!'
-        )}`
-      );
-      clipboard.writeSync(verification.user_code);
+      UI.requestToken(spinner, verification);
 
-      spinner.start();
+      clipboard.writeSync(verification.user_code);
     },
   });
 
   const { token } = await auth({ type: 'oauth' });
   setToken(token);
 
-  spinner.stop();
-  console.log();
+  UI.printAuthFinished(spinner);
 
   return token;
 }
@@ -64,22 +50,18 @@ async function getRepositories() {
 }
 
 async function deleteRepository(repo) {
-  const spinner = ora(`${style.dim(`${repo}`)}`);
-  spinner.start();
+  const spinner = UI.printDeleteRepositoryStart(repo);
 
   const curl = `curl -I ${getAuthHeader()} -X DELETE ${API_URL}/repos/${repo} | grep HTTP/2`;
   const { stdout } = await exec(curl);
   const status = stdout.split(' ')[1];
 
   if (status !== '204') {
-    spinner.fail(`${style.dim(`${repo} [ERROR]`)}`);
+    UI.printDeleteRepositoryFailed(spinner, repo);
     return false;
   }
 
-  spinner.stopAndPersist({
-    symbol: ``,
-    text: `${style.strikethrough.dim(repo)}`,
-  });
+  UI.printDeleteRepositorySucceed(spinner, repo);
 
   return true;
 }

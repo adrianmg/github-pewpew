@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
+
 const { setToken } = require('./github');
+const { getPackageDetails } = require('./utils');
 
 const { package: PACKAGE, author: PACKAGE_AUTHOR } = getPackageDetails();
 const HOME_DIR = require('os').homedir();
@@ -41,15 +43,7 @@ function getConfigDir(homeDir) {
   return configDir;
 }
 
-function getPackageDetails() {
-  return {
-    package: require('../package.json'),
-    author: 'adrianmg',
-  };
-}
-
 module.exports = {
   saveConfig,
   loadConfig,
-  getPackageDetails,
 };
