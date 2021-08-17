@@ -22,14 +22,14 @@ async function saveConfig(token) {
 function loadConfig() {
   const configExists = fs.existsSync(CONFIG_FILE);
 
-  if (configExists) {
-    let config = fs.readFileSync(CONFIG_FILE, 'utf8');
-    config = JSON.parse(config);
-
-    return setToken(config.token);
-  } else {
+  if (!configExists) {
     return false;
   }
+
+  let config = fs.readFileSync(CONFIG_FILE, 'utf8');
+  config = JSON.parse(config);
+
+  return setToken(config.token);
 }
 
 function getConfigDir(homeDir) {
