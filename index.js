@@ -4,10 +4,10 @@ const { prompt } = require('enquirer');
 
 const { auth, getRepositories, deleteRepository } = require('./src/github');
 const { loadConfig, saveConfig } = require('./src/config');
-const { printWelcome } = require('./src/ui');
+const UI = require('./src/ui');
 
 (async function main() {
-  printWelcome();
+  UI.printWelcome();
 
   if (!loadConfig()) {
     const token = await auth();
@@ -26,7 +26,8 @@ const { printWelcome } = require('./src/ui');
       footer: '––—————––—————––—————––—————––————————————',
       result: (value) => {
         if (value.length === 0) {
-          console.log(style.dim(` No repositories selected.`));
+          UI.printNoReposSelected();
+
           process.exit();
         }
         return value;
@@ -67,12 +68,9 @@ const { printWelcome } = require('./src/ui');
         deletedRepos++;
       }
     }
-    const messageConfirm = `🔫 pew pew! ${deletedRepos} repositories deleted suscessfully.`;
-    const messageRecover = `Recover repositories from github.com/settings/repositories`;
-    console.log(`${messageConfirm}`);
-    console.log(` ${style.dim(messageRecover)}`);
+    UI.printConfirmDelete(deletedRepos);
   } else {
-    console.log(`${style.dim('Rest assured, no repositories were deleted.')}`);
+    UI.printNoReposDeleted();
   }
 })().catch((err) => {
   console.error(err);

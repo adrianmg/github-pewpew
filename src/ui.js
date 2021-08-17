@@ -14,6 +14,31 @@ function printWelcome() {
   }
 }
 
+function printConfirmDelete(deletedRepos) {
+  const strConfirm = `🔫 pew pew! ${deletedRepos} repositories deleted suscessfully.`;
+  const strRecover = `Recover repositories from github.com/settings/repositories`;
+
+  console.log(strConfirm);
+  console.log(style.dim(strRecover));
+
+  return true;
+}
+
+function printNoReposDeleted() {
+  const strMessage = `Rest assured, no repositories were deleted.`;
+
+  return console.log(style.dim(strMessage));
+}
+
+function printNoReposSelected() {
+  const strMessage = `No repositories selected.`;
+
+  return console.log(style.dim(strMessage));
+}
+
 module.exports = {
   printWelcome,
+  printConfirmDelete,
+  printNoReposDeleted,
+  printNoReposSelected,
 };
