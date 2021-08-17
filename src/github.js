@@ -1,9 +1,9 @@
 const { createOAuthDeviceAuth } = require('@octokit/auth-oauth-device');
 const { promisify } = require('util');
 const childProcess = require('child_process');
-const style = require('ansi-colors');
-const ora = require('ora');
 const clipboard = require('clipboardy');
+
+const UI = require('./ui');
 
 const exec = promisify(childProcess.exec);
 
@@ -14,71 +14,56 @@ const API_URL = 'https://api.github.com';
 const API_PAGINATION = 100;
 
 async function auth() {
-  console.log(style.dim(`Sign in to GitHub:`));
-  const spinner = ora();
+  const spinner = UI.printAuthStart();
 
   const auth = createOAuthDeviceAuth({
     clientType: CLIENT_TYPE,
     clientId: CLIENT_ID,
     scopes: [SCOPE],
     async onVerification(verification) {
-      console.log(
-        `${style.bold(`Open:`)} ${style.cyan(
-          style.underline(verification.verification_uri)
-        )}`
-      );
-      console.log(
-        `${style.bold('Code:')} ${verification.user_code} ${style.dim(
-          'Copied to clipboard!'
-        )}`
-      );
-      clipboard.writeSync(verification.user_code);
+      UI.requestToken(spinner, verification);
 
-      spinner.start();
+      clipboard.writeSync(verification.user_code);
     },
   });
 
   const { token } = await auth({ type: 'oauth' });
   setToken(token);
 
-  spinner.stop();
-  console.log();
+  UI.printAuthFinished(spinner);
 
   return token;
 }
 
 async function getRepositories() {
-  const spinner = ora('Fetching repositories…');
-  spinner.start();
+  const spinner = UI.printGetRepositoriesStart();
 
   const curl = `curl ${getAuthHeader()} ${API_URL}/user/repos?per_page=${API_PAGINATION}`;
   const { stdout } = await exec(curl);
 
   const repos = JSON.parse(stdout);
   const count = repos.length;
-  spinner.succeed(`${count} ${count > 1 ? 'repositories' : 'repository'} found.`);
+
+  UI.printGetRepositoriesSucceed(spinner, count);
 
   return repos;
 }
 
 async function deleteRepository(repo) {
-  const spinner = ora(`${style.dim(`${repo}`)}`);
-  spinner.start();
+  const spinner = UI.printDeleteRepositoryStart(repo);
 
   const curl = `curl -I ${getAuthHeader()} -X DELETE ${API_URL}/repos/${repo} | grep HTTP/2`;
   const { stdout } = await exec(curl);
   const status = stdout.split(' ')[1];
 
-  if (status === '204') {
-    spinner.stopAndPersist({
-      symbol: ``,
-      text: `${style.strikethrough.dim(repo)}`,
-    });
-    return true;
-  } else {
-    spinner.fail(`${style.dim(`${repo} [ERROR]`)}`);
+  if (status !== '204') {
+    UI.printDeleteRepositoryFailed(spinner, repo);
     return false;
   }
+
+  UI.printDeleteRepositorySucceed(spinner, repo);
+
+  return true;
 }
 
 function getAuthHeader() {

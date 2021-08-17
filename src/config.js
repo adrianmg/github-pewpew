@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
+
 const { setToken } = require('./github');
+const { getPackageDetails } = require('./utils');
 
 const { package: PACKAGE, author: PACKAGE_AUTHOR } = getPackageDetails();
 const HOME_DIR = require('os').homedir();
@@ -19,6 +21,17 @@ async function saveConfig(token) {
   return true;
 }
 
+function loadConfig() {
+  const configExists = fs.existsSync(CONFIG_FILE);
+
+  if (!configExists) return false;
+
+  let config = fs.readFileSync(CONFIG_FILE, 'utf8');
+  config = JSON.parse(config);
+
+  return setToken(config.token);
+}
+
 function getConfigDir(homeDir) {
   const configDir = path.join(
     homeDir,
@@ -30,28 +43,7 @@ function getConfigDir(homeDir) {
   return configDir;
 }
 
-function loadConfig() {
-  const configExists = fs.existsSync(CONFIG_FILE);
-
-  if (configExists) {
-    let config = fs.readFileSync(CONFIG_FILE, 'utf8');
-    config = JSON.parse(config);
-
-    return setToken(config.token);
-  } else {
-    return false;
-  }
-}
-
-function getPackageDetails() {
-  return {
-    package: require('../package.json'),
-    author: 'adrianmg',
-  };
-}
-
 module.exports = {
   saveConfig,
   loadConfig,
-  getPackageDetails,
 };
