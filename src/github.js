@@ -44,6 +44,11 @@ async function getRepositories() {
   const repos = JSON.parse(stdout);
   const count = repos.length;
 
+  if (count <= 0) {
+    UI.printNoRepos(spinner);
+    process.exit();
+  }
+
   UI.printGetRepositoriesSucceed(spinner, count);
 
   return repos;

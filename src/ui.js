@@ -93,6 +93,11 @@ function printDeleteRepositoryFailed(spinner, repo) {
   return spinner.fail(style.dim(strError));
 }
 
+function printNoRepos(spinner) {
+  const strMessage = `No repositories found.`;
+  return spinner.fail(style.dim(strMessage));
+}
+
 function printNoReposDeleted() {
   const strMessage = `Rest assured, no repositories were deleted.`;
 
@@ -147,6 +152,7 @@ module.exports = {
   printDeleteRepositoryStart,
   printDeleteRepositorySucceed,
   printDeleteRepositoryFailed,
+  printNoRepos,
   printNoReposDeleted,
   printNoReposSelected,
   printError,
