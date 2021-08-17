@@ -36,9 +36,14 @@ function printNoReposSelected() {
   return console.log(style.dim(strMessage));
 }
 
+function printError(strError) {
+  return console.log(style.redBright(strError));
+}
+
 module.exports = {
   printWelcome,
   printConfirmDelete,
   printNoReposDeleted,
   printNoReposSelected,
+  printError,
 };

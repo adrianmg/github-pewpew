@@ -73,5 +73,5 @@ const UI = require('./src/ui');
     UI.printNoReposDeleted();
   }
 })().catch((err) => {
-  console.error(err);
+  UI.printError(err);
 });
