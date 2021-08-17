@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { setConfig } = require('./github');
+const { setToken } = require('./github');
 
 const { package: PACKAGE, author: PACKAGE_AUTHOR } = getPackageDetails();
 const HOME_DIR = require('os').homedir();
@@ -37,7 +37,7 @@ function loadConfig() {
     let config = fs.readFileSync(CONFIG_FILE, 'utf8');
     config = JSON.parse(config);
 
-    return setConfig(config.token);
+    return setToken(config.token);
   } else {
     return false;
   }

@@ -39,7 +39,7 @@ async function auth() {
   });
 
   const { token } = await auth({ type: 'oauth' });
-  setConfig(token);
+  setToken(token);
 
   spinner.stop();
   console.log();
@@ -85,7 +85,7 @@ function getAuthHeader() {
   return `-H "Authorization: token ${process.env.GITHUB_TOKEN}"`;
 }
 
-function setConfig(token) {
+function setToken(token) {
   if (!token) return false;
 
   process.env.GITHUB_TOKEN = token;
@@ -96,5 +96,5 @@ module.exports = {
   auth,
   getRepositories,
   deleteRepository,
-  setConfig,
+  setToken,
 };
