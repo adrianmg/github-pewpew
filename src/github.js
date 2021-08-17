@@ -39,12 +39,13 @@ async function getRepositories() {
   const spinner = UI.printGetRepositoriesStart();
 
   const curl = `curl ${getAuthHeader()} ${API_URL}/user/repos?per_page=${API_PAGINATION}`;
+
   const { stdout } = await exec(curl);
 
   const repos = JSON.parse(stdout);
   const count = repos.length;
 
-  if (count <= 0) {
+  if (!count || count < 1) {
     UI.printNoRepos(spinner);
     process.exit();
   }
