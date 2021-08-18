@@ -7,7 +7,7 @@ const UI = require('./ui');
 
 const exec = promisify(childProcess.exec);
 
-const CLIENT_ID = 'ed7c193c5b64ee06192a';
+const CLIENT_ID = process.env.DEV ? process.env.CLIENT_ID : 'ed7c193c5b64ee06192a';
 const CLIENT_TYPE = 'oauth-app';
 const SCOPE = ['delete_repo', 'repo'];
 const API_URL = 'https://api.github.com';
