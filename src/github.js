@@ -1,4 +1,5 @@
 const { createOAuthDeviceAuth } = require('@octokit/auth-oauth-device');
+const { request } = require('@octokit/request');
 const { promisify } = require('util');
 const childProcess = require('child_process');
 const clipboard = require('clipboardy');
@@ -9,8 +10,7 @@ const exec = promisify(childProcess.exec);
 
 const CLIENT_ID = process.env.DEV ? process.env.CLIENT_ID : 'ed7c193c5b64ee06192a';
 const CLIENT_TYPE = 'oauth-app';
-const SCOPE = ['delete_repo', 'repo'];
-const API_URL = 'https://api.github.com';
+const CLIENT_SCOPES = ['delete_repo', 'repo'];
 const API_PAGINATION = 100;
 
 async function auth() {
@@ -19,7 +19,7 @@ async function auth() {
   const auth = createOAuthDeviceAuth({
     clientType: CLIENT_TYPE,
     clientId: CLIENT_ID,
-    scopes: SCOPE,
+    scopes: CLIENT_SCOPES,
     async onVerification(verification) {
       UI.requestToken(spinner, verification);
 
@@ -38,16 +38,20 @@ async function auth() {
 async function getRepositories() {
   const spinner = UI.printGetRepositoriesStart();
 
-  const curl = `curl ${getAuthHeader()} ${API_URL}/user/repos?per_page=${API_PAGINATION}`;
+  const res = await request(`GET /user/repos`, {
+    headers: { authorization: getAuthHeader() },
+    per_page: API_PAGINATION,
+  });
 
-  const { stdout } = await exec(curl);
+  const scopes = res.headers['x-oauth-scopes'];
+  const count = res.data.length;
+  const repos = res.data;
 
-  const repos = JSON.parse(stdout);
-  const count = repos.length;
-
-  if (!count || count < 1) {
+  if (res.status !== 200 || !checkPermissions(scopes)) {
     UI.printNoRepos(spinner);
-    process.exit();
+    UI.printNewLine();
+
+    return false;
   }
 
   UI.printGetRepositoriesSucceed(spinner, count);
@@ -55,25 +59,42 @@ async function getRepositories() {
   return repos;
 }
 
-async function deleteRepository(repo) {
-  const spinner = UI.printDeleteRepositoryStart(repo);
+function checkPermissions(authScopes) {
+  authScopes = authScopes.split(', ');
+  authScopes.sort();
+  const clientScopes = CLIENT_SCOPES.sort();
 
-  const curl = `curl -I ${getAuthHeader()} -X DELETE ${API_URL}/repos/${repo} | grep HTTP/2`;
-  const { stdout } = await exec(curl);
-  const status = stdout.split(' ')[1];
-
-  if (status !== '204') {
-    UI.printDeleteRepositoryFailed(spinner, repo);
+  if (authScopes.length !== clientScopes.length) {
     return false;
   }
 
-  UI.printDeleteRepositorySucceed(spinner, repo);
+  for (let i = 0; i < clientScopes.length; i++) {
+    if (authScopes[i] !== clientScopes[i]) {
+      return false;
+    }
+  }
 
   return true;
 }
 
+async function deleteRepository(repo) {
+  const spinner = UI.printDeleteRepositoryStart(repo);
+
+  const res = await request(`DELETE /repos/${repo}`, {
+    headers: { authorization: getAuthHeader() },
+  });
+
+  if (res.status === 204) {
+    UI.printDeleteRepositorySucceed(spinner, repo);
+    return true;
+  }
+
+  UI.printDeleteRepositoryFailed(spinner, repo);
+  return false;
+}
+
 function getAuthHeader() {
-  return `-H "Authorization: token ${process.env.GITHUB_TOKEN}"`;
+  return `token ${process.env.GITHUB_TOKEN}`;
 }
 
 function setToken(token) {
