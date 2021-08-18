@@ -18,7 +18,7 @@ function printWelcome() {
   }
 }
 
-async function promptGetRepositories(repositories) {
+async function promptSelectRepositories(repositories) {
   return await prompt({
     type: 'autocomplete',
     name: 'repos',
@@ -40,7 +40,7 @@ function printGetRepositoriesSucceed(spinner, repoCount) {
   const strMessage = `${repoCount} ${
     repoCount > 1 ? 'repositories' : 'repository'
   } found.`;
-  return spinner.succeed(strMessage);
+  return spinner.succeed(style.dim(strMessage));
 }
 
 async function promptConfirmDelete(repoCount) {
@@ -139,12 +139,16 @@ function printAuthFinished(spinner) {
   return console.log();
 }
 
+function printNewLine() {
+  return console.log();
+}
+
 module.exports = {
   printWelcome,
   printAuthStart,
   requestToken,
   printAuthFinished,
-  promptGetRepositories,
+  promptSelectRepositories,
   printGetRepositoriesStart,
   printGetRepositoriesSucceed,
   promptConfirmDelete,
@@ -156,4 +160,5 @@ module.exports = {
   printNoReposDeleted,
   printNoReposSelected,
   printError,
+  printNewLine,
 };
