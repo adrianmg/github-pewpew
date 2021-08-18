@@ -32,6 +32,14 @@ function loadConfig() {
   return setToken(config.token);
 }
 
+function deleteConfig() {
+  const configExists = fs.existsSync(CONFIG_FILE);
+
+  if (!configExists) return false;
+
+  return fs.unlinkSync(CONFIG_FILE);
+}
+
 function getConfigDir(homeDir) {
   const configDir = path.join(
     homeDir,
@@ -46,4 +54,5 @@ function getConfigDir(homeDir) {
 module.exports = {
   saveConfig,
   loadConfig,
+  deleteConfig,
 };
