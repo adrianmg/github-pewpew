@@ -1,8 +1,10 @@
 const style = require('ansi-colors');
 const ora = require('ora');
 const { prompt } = require('enquirer');
+const clipboard = require('clipboardy');
 
 const { getPackageDetails } = require('./utils');
+const GITHUB = require('./github');
 
 function printWelcome() {
   const PACKAGE = getPackageDetails().package;
@@ -18,17 +20,64 @@ function printWelcome() {
   }
 }
 
-async function promptSelectRepositories(repositories) {
-  return await prompt({
-    type: 'autocomplete',
-    name: 'repos',
-    message: 'Select repositories you want to delete:',
-    limit: 12,
-    multiple: true,
-    footer: '––—————––—————––—————––—————––————————————',
-    format: (value) => style.green(value),
-    choices: repositories.map(({ full_name }) => full_name),
+async function promptAuth() {
+  const strSignIn = `Sign in to GitHub:`;
+  const spinner = ora();
+
+  console.log(style.dim(strSignIn));
+
+  const token = await GITHUB.auth((verification) => {
+    requestTokenTemp(verification);
+    spinner.start();
+
+    clipboard.writeSync(verification.user_code);
   });
+
+  spinner.stop();
+  console.log();
+
+  return token;
+}
+
+function requestTokenTemp(verification) {
+  const strOpen = `Open:`;
+  const strURL = verification.verification_uri;
+  const strCode = `Code:`;
+  const strCodeValue = verification.user_code;
+  const strClipboard = `Copied to clipboard!`;
+
+  console.log(`${style.bold(strOpen)} ${style.cyan.underline(strURL)}`);
+  console.log(`${style.bold(strCode)} ${strCodeValue} ${style.dim(strClipboard)}`);
+}
+
+async function requestToken(spinner, verification) {
+  const strOpen = `Open:`;
+  const strURL = verification.verification_uri;
+  const strCode = `Code:`;
+  const strCodeValue = verification.user_code;
+  const strClipboard = `Copied to clipboard!`;
+
+  console.log(`${style.bold(strOpen)} ${style.cyan.underline(strURL)}`);
+  console.log(`${style.bold(strCode)} ${strCodeValue} ${style.dim(strClipboard)}`);
+
+  return spinner.start();
+}
+
+async function promptSelectRepositories(repositories) {
+  try {
+    return await prompt({
+      type: 'autocomplete',
+      name: 'repos',
+      message: 'Select repositories you want to delete:',
+      limit: 12,
+      multiple: true,
+      footer: '––—————––—————––—————––—————––————————————',
+      format: (value) => style.green(value),
+      choices: repositories.map(({ full_name }) => full_name),
+    });
+  } catch (error) {
+    return { repos: [] };
+  }
 }
 
 function printGetRepositoriesStart() {
@@ -121,19 +170,6 @@ function printAuthStart() {
   return ora();
 }
 
-async function requestToken(spinner, verification) {
-  const strOpen = `Open:`;
-  const strURL = verification.verification_uri;
-  const strCode = `Code:`;
-  const strCodeValue = verification.user_code;
-  const strClipboard = `Copied to clipboard!`;
-
-  console.log(`${style.bold(strOpen)} ${style.cyan.underline(strURL)}`);
-  console.log(`${style.bold(strCode)} ${strCodeValue} ${style.dim(strClipboard)}`);
-
-  return spinner.start();
-}
-
 function printAuthFinished(spinner) {
   spinner.stop();
   return console.log();
@@ -145,6 +181,7 @@ function printNewLine() {
 
 module.exports = {
   printWelcome,
+  promptAuth,
   printAuthStart,
   requestToken,
   printAuthFinished,

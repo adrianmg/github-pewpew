@@ -4,7 +4,8 @@ const { promisify } = require('util');
 const childProcess = require('child_process');
 const clipboard = require('clipboardy');
 
-const UI = require('./ui');
+// const UI = require('./ui');
+const UI = false;
 
 const exec = promisify(childProcess.exec);
 
@@ -13,30 +14,34 @@ const CLIENT_TYPE = 'oauth-app';
 const CLIENT_SCOPES = ['delete_repo', 'repo'];
 const API_PAGINATION = 100;
 
-async function auth() {
-  const spinner = UI.printAuthStart();
-
+async function auth(onVerificationCode) {
   const auth = createOAuthDeviceAuth({
     clientType: CLIENT_TYPE,
     clientId: CLIENT_ID,
     scopes: CLIENT_SCOPES,
-    async onVerification(verification) {
-      UI.requestToken(spinner, verification);
-
-      clipboard.writeSync(verification.user_code);
-    },
+    onVerification: onVerificationCode,
   });
 
   const { token } = await auth({ type: 'oauth' });
   setToken(token);
 
-  UI.printAuthFinished(spinner);
-
   return token;
 }
 
+// UI renderGetRepos
+// spinner
+// res = getRepos()
+// res STOP spinner || tantos encontrados
+// return res
+
 async function getRepositories() {
   const spinner = UI.printGetRepositoriesStart();
+
+  // apiCall('POST', '/user/repos', {options}, {
+  //   headers: {
+  //     authorization: getAuthHeader(),
+  //   },
+  // });
 
   const res = await request(`GET /user/repos`, {
     headers: { authorization: getAuthHeader() },
@@ -48,6 +53,11 @@ async function getRepositories() {
   const repos = res.data;
 
   if (res.status !== 200 || !checkPermissions(scopes)) {
+    // 401 no permisos token no válido (relanza app) o scopes es cuando relanza
+    // 403 todo bien pero no puedes borrar este repo no es tuyo/etc
+    // throw
+    // throw new AuthenticationError(…) o throw new BadScopesError() …
+    // throw new Error(‘Reconfigure scopes’)
     UI.printNoRepos(spinner);
     UI.printNewLine();
 
