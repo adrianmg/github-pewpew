@@ -3,8 +3,9 @@ const { request } = require('@octokit/request');
 
 // const UI = require('./ui');
 const UI = false;
+const CLIENT_ID_PROD = 'ed7c193c5b64ee06192a';
 
-const CLIENT_ID = process.env.DEV ? process.env.CLIENT_ID : 'ed7c193c5b64ee06192a';
+const CLIENT_ID = process.env.DEV ? process.env.CLIENT_ID : CLIENT_ID_PROD;
 const CLIENT_TYPE = 'oauth-app';
 const CLIENT_SCOPES = ['delete_repo', 'repo'];
 const API_PAGINATION = 100;
