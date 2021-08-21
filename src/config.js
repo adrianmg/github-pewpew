@@ -9,7 +9,7 @@ const HOME_DIR = require('os').homedir();
 const CONFIG_DIR = getConfigDir(HOME_DIR);
 const CONFIG_FILE = path.join(CONFIG_DIR, 'auth.json');
 
-async function save(token) {
+function save(token) {
   const configuration = {
     _: `This is your ${PACKAGE.name} credentials. DO NOT SHARE!`,
     token: token,

@@ -13,7 +13,7 @@ async function main() {
   try {
     if (!Config.load()) {
       const token = await UI.promptAuth();
-      await Config.save(token);
+      Config.save(token);
     }
 
     const repositories = await UI.getRepositories();
