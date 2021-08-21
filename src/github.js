@@ -38,7 +38,7 @@ function checkPermissions(authScopes) {
   authScopes.sort();
   const clientScopes = CLIENT_SCOPES.sort();
 
-  if (authScopes.length !== clientScopes.length) {
+  if (authScopes.length < clientScopes.length) {
     return false;
   }
 
