@@ -45,8 +45,8 @@ function checkPermissions(authScopes) {
   });
 }
 
-async function deleteRepository(repo) {
-  const res = await apiCall('DELETE', `/repos/${repo}`);
+async function deleteRepository(repository) {
+  const res = await apiCall('DELETE', `/repos/${repository}`);
 
   if (res.status !== 204) return false;
 
