@@ -82,8 +82,9 @@ async function getRepositories() {
   } catch (error) {
     spinner.stop();
 
-    if (error instanceof GITHUB.AuthError) throw new GITHUB.AuthError();
-    if (error instanceof GITHUB.ScopesError) throw new GITHUB.AuthError();
+    if (error instanceof GITHUB.AuthError || error instanceof GITHUB.ScopesError) {
+      throw error;
+    }
   }
 }
 
