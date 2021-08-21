@@ -27,7 +27,7 @@ async function promptAuth() {
   console.log(style.dim(strSignIn));
 
   const token = await GITHUB.auth((verification) => {
-    requestTokenTemp(verification);
+    requestToken(verification);
     spinner.start();
 
     clipboard.writeSync(verification.user_code);
@@ -39,7 +39,7 @@ async function promptAuth() {
   return token;
 }
 
-function requestTokenTemp(verification) {
+function requestToken(verification) {
   const strOpen = `Open:`;
   const strURL = verification.verification_uri;
   const strCode = `Code:`;
@@ -48,19 +48,6 @@ function requestTokenTemp(verification) {
 
   console.log(`${style.bold(strOpen)} ${style.cyan.underline(strURL)}`);
   console.log(`${style.bold(strCode)} ${strCodeValue} ${style.dim(strClipboard)}`);
-}
-
-async function requestToken(spinner, verification) {
-  const strOpen = `Open:`;
-  const strURL = verification.verification_uri;
-  const strCode = `Code:`;
-  const strCodeValue = verification.user_code;
-  const strClipboard = `Copied to clipboard!`;
-
-  console.log(`${style.bold(strOpen)} ${style.cyan.underline(strURL)}`);
-  console.log(`${style.bold(strCode)} ${strCodeValue} ${style.dim(strClipboard)}`);
-
-  return spinner.start();
 }
 
 async function promptSelectRepositories(repositories) {
@@ -163,18 +150,6 @@ function printError(strError) {
   return console.log(style.redBright(strError));
 }
 
-function printAuthStart() {
-  const strSignIn = `Sign in to GitHub:`;
-  console.log(style.dim(strSignIn));
-
-  return ora();
-}
-
-function printAuthFinished(spinner) {
-  spinner.stop();
-  return console.log();
-}
-
 function printNewLine() {
   return console.log();
 }
@@ -182,9 +157,6 @@ function printNewLine() {
 module.exports = {
   printWelcome,
   promptAuth,
-  printAuthStart,
-  requestToken,
-  printAuthFinished,
   promptSelectRepositories,
   printGetRepositoriesStart,
   printGetRepositoriesSucceed,
