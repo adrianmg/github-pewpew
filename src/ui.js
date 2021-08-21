@@ -3,11 +3,11 @@ const ora = require('ora');
 const { prompt } = require('enquirer');
 const clipboard = require('clipboardy');
 
-const { getPackageDetails } = require('./utils');
+const UTILS = require('./utils');
 const GITHUB = require('./github');
 
 function printWelcome() {
-  const PACKAGE = getPackageDetails().package;
+  const PACKAGE = UTILS.getPackageDetails().package;
 
   const name = PACKAGE.name;
   const description = PACKAGE.description;
@@ -93,6 +93,25 @@ function printReposFound(count) {
   return strMessage;
 }
 
+async function deleteRepositories(repositories) {
+  let count = 0;
+
+  for (const repo of repositories) {
+    const spinner = ora(style.dim(repo)).start();
+
+    const status = await GITHUB.deleteRepository(repo);
+
+    if (status) {
+      count++;
+      spinner.stopAndPersist({ symbol: '', text: style.strikethrough.dim(repo) });
+    } else {
+      spinner.fail(style.dim(`${repo} [ERROR]`));
+    }
+  }
+
+  printConfirmDelete(deletedRepos);
+}
+
 async function promptConfirmDelete(repoCount) {
   return await prompt({
     type: 'select',
@@ -126,22 +145,22 @@ function printConfirmDelete(deletedRepos) {
   return true;
 }
 
-function printDeleteRepositoryStart(repo) {
-  return ora(style.dim(repo)).start();
-}
+// function printDeleteRepositoryStart(repo) {
+//   return ora(style.dim(repo)).start();
+// }
 
-function printDeleteRepositorySucceed(spinner, repo) {
-  return spinner.stopAndPersist({
-    symbol: '',
-    text: style.strikethrough.dim(repo),
-  });
-}
+// function printDeleteRepositorySucceed(spinner, repo) {
+//   return spinner.stopAndPersist({
+//     symbol: '',
+//     text: style.strikethrough.dim(repo),
+//   });
+// }
 
-function printDeleteRepositoryFailed(spinner, repo) {
-  strError = `${repo} [ERROR]`;
+// function printDeleteRepositoryFailed(spinner, repo) {
+//   strError = `${repo} [ERROR]`;
 
-  return spinner.fail(style.dim(strError));
-}
+//   return spinner.fail(style.dim(strError));
+// }
 
 function printNoRepos(spinner) {
   const strMessage = `No repositories found.`;
@@ -169,11 +188,8 @@ module.exports = {
   promptAuth,
   getRepositories,
   promptSelectRepositories,
+  deleteRepositories,
   promptConfirmDelete,
-  printConfirmDelete,
-  printDeleteRepositoryStart,
-  printDeleteRepositorySucceed,
-  printDeleteRepositoryFailed,
   printNoRepos,
   printNoReposDeleted,
   printNoReposSelected,

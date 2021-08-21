@@ -34,20 +34,11 @@ async function main() {
     res = await UI.promptConfirmDelete(repoCount);
 
     if (res.confirmDelete === 'Yes') {
-      let deletedRepos = 0;
-
-      for (const repo of reposToDelete) {
-        const status = await GITHUB.deleteRepository(repo);
-        if (status) deletedRepos++;
-      }
-
-      UI.printConfirmDelete(deletedRepos);
+      await UI.deleteRepositories(reposToDelete);
     } else {
       UI.printNoReposDeleted();
     }
   } catch (error) {
-    console.log('Hi from MAIN CATCH');
-
     if (error instanceof GITHUB.AuthError || error instanceof GITHUB.ScopesError) {
       CONFIG.deleteFile();
 

@@ -1,7 +1,6 @@
 const { createOAuthDeviceAuth } = require('@octokit/auth-oauth-device');
 const { request } = require('@octokit/request');
 
-const UI = false;
 const CLIENT_ID_PROD = 'ed7c193c5b64ee06192a';
 
 const CLIENT_ID = process.env.DEV ? process.env.CLIENT_ID : CLIENT_ID_PROD;
@@ -32,6 +31,42 @@ async function getRepositories() {
   if (!checkPermissions(scopes)) throw new ScopesError();
 
   return repos;
+}
+
+function checkPermissions(authScopes) {
+  authScopes = authScopes.split(', ');
+  authScopes.sort();
+  const clientScopes = CLIENT_SCOPES.sort();
+
+  if (authScopes.length !== clientScopes.length) {
+    return false;
+  }
+
+  for (let i = 0; i < clientScopes.length; i++) {
+    if (authScopes[i] !== clientScopes[i]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+async function deleteRepository(repo) {
+  const res = await apiCall('DELETE', `/repos/${repo}`);
+
+  if (res.status !== 204) return false;
+
+  return true;
+}
+
+function getAuthHeader() {
+  return `token ${process.env.GITHUB_TOKEN}`;
+}
+
+function setToken(token) {
+  if (!token) return false;
+
+  return (process.env.GITHUB_TOKEN = token);
 }
 
 async function apiCall(method, endpoint) {
@@ -65,55 +100,11 @@ class ScopesError extends Error {
   }
 }
 
-function checkPermissions(authScopes) {
-  authScopes = authScopes.split(', ');
-  authScopes.sort();
-  const clientScopes = CLIENT_SCOPES.sort();
-
-  if (authScopes.length !== clientScopes.length) {
-    return false;
-  }
-
-  for (let i = 0; i < clientScopes.length; i++) {
-    if (authScopes[i] !== clientScopes[i]) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-async function deleteRepository(repo) {
-  const spinner = UI.printDeleteRepositoryStart(repo);
-
-  const res = await request(`DELETE /repos/${repo}`, {
-    headers: { authorization: getAuthHeader() },
-  });
-
-  if (res.status === 204) {
-    UI.printDeleteRepositorySucceed(spinner, repo);
-    return true;
-  }
-
-  UI.printDeleteRepositoryFailed(spinner, repo);
-  return false;
-}
-
-function getAuthHeader() {
-  return `token ${process.env.GITHUB_TOKEN}`;
-}
-
-function setToken(token) {
-  if (!token) return false;
-
-  return (process.env.GITHUB_TOKEN = token);
-}
-
 module.exports = {
   auth,
-  AuthError,
-  ScopesError,
-  setToken,
   getRepositories,
   deleteRepository,
+  setToken,
+  AuthError,
+  ScopesError,
 };
