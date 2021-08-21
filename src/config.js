@@ -1,15 +1,15 @@
 const fs = require('fs');
 const path = require('path');
 
-const { setToken } = require('./github');
-const { getPackageDetails } = require('./utils');
+const GITHUB = require('./github');
+const UTILS = require('./utils');
 
-const { package: PACKAGE, author: PACKAGE_AUTHOR } = getPackageDetails();
+const { package: PACKAGE, author: PACKAGE_AUTHOR } = UTILS.getPackageDetails();
 const HOME_DIR = require('os').homedir();
 const CONFIG_DIR = getConfigDir(HOME_DIR);
 const CONFIG_FILE = path.join(CONFIG_DIR, 'auth.json');
 
-async function saveConfig(token) {
+async function save(token) {
   const configuration = {
     _: `This is your ${PACKAGE.name} credentials. DO NOT SHARE!`,
     token: token,
@@ -21,15 +21,23 @@ async function saveConfig(token) {
   return true;
 }
 
-function loadConfig() {
+function load() {
   const configExists = fs.existsSync(CONFIG_FILE);
 
   if (!configExists) return false;
 
-  let config = fs.readFileSync(CONFIG_FILE, 'utf8');
-  config = JSON.parse(config);
+  const config = fs.readFileSync(CONFIG_FILE, 'utf8');
+  const token = JSON.parse(config).token;
 
-  return setToken(config.token);
+  return GITHUB.setToken(token);
+}
+
+function deleteFile() {
+  const configExists = fs.existsSync(CONFIG_FILE);
+
+  if (!configExists) return false;
+
+  return fs.unlinkSync(CONFIG_FILE);
 }
 
 function getConfigDir(homeDir) {
@@ -44,6 +52,7 @@ function getConfigDir(homeDir) {
 }
 
 module.exports = {
-  saveConfig,
-  loadConfig,
+  save,
+  load,
+  deleteFile,
 };

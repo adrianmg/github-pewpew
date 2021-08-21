@@ -1,38 +1,50 @@
 #!/usr/bin/env node
-const { auth, getRepositories, deleteRepository } = require('./src/github');
-const { loadConfig, saveConfig } = require('./src/config');
+const CONFIG = require('./src/config');
+const GITHUB = require('./src/github');
 const UI = require('./src/ui');
 
-(async function main() {
-  UI.printWelcome();
+UI.printWelcome();
 
-  if (!loadConfig()) {
-    const token = await auth();
-    await saveConfig(token);
-  }
-
-  const repositories = await getRepositories();
-  let res = await UI.promptGetRepositories(repositories);
-
-  if (res.repos.length === 0) {
-    UI.printNoReposSelected();
-    process.exit();
-  }
-
-  const reposToDelete = res.repos;
-  const repoCount = reposToDelete.length;
-  res = await UI.promptConfirmDelete(repoCount);
-
-  if (res.confirmDelete === 'Yes') {
-    let deletedRepos = 0;
-    for (const repo of reposToDelete) {
-      const status = await deleteRepository(repo);
-      if (status) deletedRepos++;
-    }
-    UI.printConfirmDelete(deletedRepos);
-  } else {
-    UI.printNoReposDeleted();
-  }
-})().catch((err) => {
-  UI.printError(err);
+main().then((exitCode) => {
+  process.exit(exitCode);
 });
+
+async function main() {
+  try {
+    if (!CONFIG.load()) {
+      const token = await UI.promptAuth();
+      await CONFIG.save(token);
+    }
+
+    const repositories = await UI.getRepositories();
+    if (!repositories) {
+      CONFIG.deleteFile();
+      return await main();
+    }
+
+    let res = await UI.promptSelectRepositories(repositories);
+    if (res.repos.length === 0) {
+      UI.printNoReposSelected();
+
+      return 0;
+    }
+
+    const reposToDelete = res.repos;
+    const repoCount = reposToDelete.length;
+    res = await UI.promptConfirmDelete(repoCount);
+
+    if (res.confirmDelete === 'Yes') {
+      await UI.deleteRepositories(reposToDelete);
+    } else {
+      UI.printNoReposDeleted();
+    }
+  } catch (error) {
+    if (error instanceof GITHUB.AuthError || error instanceof GITHUB.ScopesError) {
+      CONFIG.deleteFile();
+
+      return await main();
+    }
+
+    return;
+  }
+}
