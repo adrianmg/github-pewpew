@@ -109,7 +109,7 @@ async function deleteRepositories(repositories) {
     }
   }
 
-  printConfirmDelete(deletedRepos);
+  printConfirmDelete(repositories);
 }
 
 async function promptConfirmDelete(repoCount) {
@@ -145,28 +145,6 @@ function printConfirmDelete(deletedRepos) {
   return true;
 }
 
-// function printDeleteRepositoryStart(repo) {
-//   return ora(style.dim(repo)).start();
-// }
-
-// function printDeleteRepositorySucceed(spinner, repo) {
-//   return spinner.stopAndPersist({
-//     symbol: '',
-//     text: style.strikethrough.dim(repo),
-//   });
-// }
-
-// function printDeleteRepositoryFailed(spinner, repo) {
-//   strError = `${repo} [ERROR]`;
-
-//   return spinner.fail(style.dim(strError));
-// }
-
-function printNoRepos(spinner) {
-  const strMessage = `No repositories found.`;
-  return spinner.fail(style.dim(strMessage));
-}
-
 function printNoReposDeleted() {
   const strMessage = `Rest assured, no repositories were deleted.`;
 
@@ -190,7 +168,6 @@ module.exports = {
   promptSelectRepositories,
   deleteRepositories,
   promptConfirmDelete,
-  printNoRepos,
   printNoReposDeleted,
   printNoReposSelected,
   printError,

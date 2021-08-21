@@ -45,6 +45,7 @@ async function main() {
       return await main();
     }
 
+    UI.printError(error);
     return;
   }
 }
