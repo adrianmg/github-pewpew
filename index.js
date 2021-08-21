@@ -50,7 +50,6 @@ async function main() {
     UI.printError(error);
     console.log('error:', error);
 
-    // await Promise.all([]);
     console.log('Hi from catch');
     // deleteConfig(); instaceof error
     // return await main();

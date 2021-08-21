@@ -1,13 +1,8 @@
 const { createOAuthDeviceAuth } = require('@octokit/auth-oauth-device');
 const { request } = require('@octokit/request');
-const { promisify } = require('util');
-const childProcess = require('child_process');
-const clipboard = require('clipboardy');
 
 // const UI = require('./ui');
 const UI = false;
-
-const exec = promisify(childProcess.exec);
 
 const CLIENT_ID = process.env.DEV ? process.env.CLIENT_ID : 'ed7c193c5b64ee06192a';
 const CLIENT_TYPE = 'oauth-app';
