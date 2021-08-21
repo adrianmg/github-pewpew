@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-const { getRepositories, deleteRepository } = require('./src/github');
-const { loadConfig, saveConfig, deleteConfig } = require('./src/config');
+const CONFIG = require('./src/config');
+const GITHUB = require('./src/github');
 const UI = require('./src/ui');
 
 UI.printWelcome();
@@ -11,22 +11,21 @@ main().then((exitCode) => {
 
 async function main() {
   try {
-    if (!loadConfig()) {
+    if (!CONFIG.load()) {
       const token = await UI.promptAuth();
-      await saveConfig(token);
+      await CONFIG.save(token);
     }
 
-    const repositories = await getRepositories(); // await UI.getRepositories();
+    const repositories = await UI.getRepositories();
     if (!repositories) {
-      deleteConfig();
-      console.log('hi from deleteConfig');
-
+      CONFIG.deleteFile();
       return await main();
     }
 
     let res = await UI.promptSelectRepositories(repositories);
     if (res.repos.length === 0) {
       UI.printNoReposSelected();
+
       return 0;
     }
 
@@ -36,23 +35,25 @@ async function main() {
 
     if (res.confirmDelete === 'Yes') {
       let deletedRepos = 0;
+
       for (const repo of reposToDelete) {
-        const status = await deleteRepository(repo);
+        const status = await GITHUB.deleteRepository(repo);
         if (status) deletedRepos++;
       }
+
       UI.printConfirmDelete(deletedRepos);
     } else {
       UI.printNoReposDeleted();
     }
   } catch (error) {
-    // TODO: fix entering in error when user cancels the command before finishing it
-    // is it due to an unsolved promise in any of the prompts?
-    UI.printError(error);
-    console.log('error:', error);
+    console.log('Hi from MAIN CATCH');
 
-    console.log('Hi from catch');
-    // deleteConfig(); instaceof error
-    // return await main();
+    if (error instanceof GITHUB.AuthError || error instanceof GITHUB.ScopesError) {
+      CONFIG.deleteFile();
+
+      return await main();
+    }
+
     return;
   }
 }

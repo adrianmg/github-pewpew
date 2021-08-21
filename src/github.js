@@ -1,7 +1,6 @@
 const { createOAuthDeviceAuth } = require('@octokit/auth-oauth-device');
 const { request } = require('@octokit/request');
 
-// const UI = require('./ui');
 const UI = false;
 const CLIENT_ID_PROD = 'ed7c193c5b64ee06192a';
 
@@ -24,45 +23,46 @@ async function auth(onVerificationCode) {
   return token;
 }
 
-// UI renderGetRepos
-// spinner
-// res = getRepos()
-// res STOP spinner || tantos encontrados
-// return res
-
 async function getRepositories() {
-  const spinner = UI.printGetRepositoriesStart();
-
-  // apiCall('POST', '/user/repos', {options}, {
-  //   headers: {
-  //     authorization: getAuthHeader(),
-  //   },
-  // });
-
-  const res = await request(`GET /user/repos`, {
-    headers: { authorization: getAuthHeader() },
-    per_page: API_PAGINATION,
-  });
+  const res = await apiCall('GET', '/user/repos');
 
   const scopes = res.headers['x-oauth-scopes'];
-  const count = res.data.length;
   const repos = res.data;
 
-  if (res.status !== 200 || !checkPermissions(scopes)) {
-    // 401 no permisos token no válido (relanza app) o scopes es cuando relanza
-    // 403 todo bien pero no puedes borrar este repo no es tuyo/etc
-    // throw
-    // throw new AuthenticationError(…) o throw new BadScopesError() …
-    // throw new Error(‘Reconfigure scopes’)
-    UI.printNoRepos(spinner);
-    UI.printNewLine();
-
-    return false;
-  }
-
-  UI.printGetRepositoriesSucceed(spinner, count);
+  if (!checkPermissions(scopes)) throw new ScopesError();
 
   return repos;
+}
+
+async function apiCall(method, endpoint) {
+  const query = `${method} ${endpoint}`;
+  const params = {
+    headers: { authorization: getAuthHeader() },
+    per_page: API_PAGINATION,
+  };
+
+  try {
+    return await request(query, params);
+  } catch (error) {
+    if (error.status === 401) throw new AuthError();
+
+    throw error;
+  }
+}
+
+class AuthError extends Error {
+  constructor(message) {
+    super(message);
+    this.message = message ? message : 'Unauthorized';
+    this.code = 401;
+  }
+}
+
+class ScopesError extends Error {
+  constructor(message) {
+    super(message);
+    this.message = message ? message : 'Client and token scopes missmatch';
+  }
 }
 
 function checkPermissions(authScopes) {
@@ -106,13 +106,14 @@ function getAuthHeader() {
 function setToken(token) {
   if (!token) return false;
 
-  process.env.GITHUB_TOKEN = token;
-  return true;
+  return (process.env.GITHUB_TOKEN = token);
 }
 
 module.exports = {
   auth,
+  AuthError,
+  ScopesError,
+  setToken,
   getRepositories,
   deleteRepository,
-  setToken,
 };

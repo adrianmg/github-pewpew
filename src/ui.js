@@ -67,16 +67,30 @@ async function promptSelectRepositories(repositories) {
   }
 }
 
-function printGetRepositoriesStart() {
+async function getRepositories() {
   const strMessage = `Fetching repositories…`;
-  return ora(strMessage).start();
+  const spinner = ora(strMessage).start();
+
+  try {
+    const repositories = await GITHUB.getRepositories();
+
+    const count = repositories.length;
+    const strSucceed = printReposFound(count);
+    spinner.succeed(style.dim(strSucceed));
+
+    return repositories;
+  } catch (error) {
+    spinner.stop();
+
+    if (error instanceof GITHUB.AuthError) throw new GITHUB.AuthError();
+    if (error instanceof GITHUB.ScopesError) throw new GITHUB.AuthError();
+  }
 }
 
-function printGetRepositoriesSucceed(spinner, repoCount) {
-  const strMessage = `${repoCount} ${
-    repoCount > 1 ? 'repositories' : 'repository'
-  } found.`;
-  return spinner.succeed(style.dim(strMessage));
+function printReposFound(count) {
+  const strMessage = `${count} ${count > 1 ? 'repositories' : 'repository'} found.`;
+
+  return strMessage;
 }
 
 async function promptConfirmDelete(repoCount) {
@@ -150,16 +164,11 @@ function printError(strError) {
   return console.log(style.redBright(strError));
 }
 
-function printNewLine() {
-  return console.log();
-}
-
 module.exports = {
   printWelcome,
   promptAuth,
+  getRepositories,
   promptSelectRepositories,
-  printGetRepositoriesStart,
-  printGetRepositoriesSucceed,
   promptConfirmDelete,
   printConfirmDelete,
   printDeleteRepositoryStart,
@@ -169,5 +178,4 @@ module.exports = {
   printNoReposDeleted,
   printNoReposSelected,
   printError,
-  printNewLine,
 };
