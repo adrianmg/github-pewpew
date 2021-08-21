@@ -34,21 +34,15 @@ async function getRepositories() {
 }
 
 function checkPermissions(authScopes) {
-  authScopes = authScopes.split(', ');
-  authScopes.sort();
-  const clientScopes = CLIENT_SCOPES.sort();
+  const currentScopes = authScopes.split(', ');
 
-  if (authScopes.length < clientScopes.length) {
+  if (currentScopes.length < CLIENT_SCOPES.length) {
     return false;
   }
 
-  for (let i = 0; i < clientScopes.length; i++) {
-    if (authScopes[i] !== clientScopes[i]) {
-      return false;
-    }
-  }
-
-  return true;
+  CLIENT_SCOPES.every((scope) => {
+    return currentScopes.includes(scope);
+  });
 }
 
 async function deleteRepository(repo) {
