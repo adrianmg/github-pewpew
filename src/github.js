@@ -25,10 +25,7 @@ async function auth(onVerificationCode) {
 async function getRepositories() {
   const res = await apiCall('GET', '/user/repos');
 
-  const scopes = res.headers['x-oauth-scopes'];
   const repos = res.data;
-
-  if (!checkPermissions(scopes)) throw new ScopesError();
 
   return repos;
 }
@@ -40,7 +37,7 @@ function checkPermissions(authScopes) {
     return false;
   }
 
-  CLIENT_SCOPES.every((scope) => {
+  return CLIENT_SCOPES.every((scope) => {
     return currentScopes.includes(scope);
   });
 }
@@ -71,7 +68,13 @@ async function apiCall(method, endpoint) {
   };
 
   try {
-    return await request(query, params);
+    const res = await request(query, params);
+
+    const scopes = res.headers['x-oauth-scopes'];
+
+    if (!checkPermissions(scopes)) throw new ScopesError();
+
+    return res;
   } catch (error) {
     if (error.status === 401) throw new AuthError();
 
