@@ -88,7 +88,7 @@ async function apiCall(method, endpoint) {
 class AuthError extends Error {
   constructor(message) {
     super(message);
-    this.message = message ? message : 'Unauthorized';
+    this.message = message || 'Unauthorized';
     this.code = 401;
   }
 }
@@ -96,7 +96,7 @@ class AuthError extends Error {
 class ScopesError extends Error {
   constructor(message) {
     super(message);
-    this.message = message ? message : 'Client and token scopes missmatch';
+    this.message = message || 'Client and token scopes missmatch';
   }
 }
 
