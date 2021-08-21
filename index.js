@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-const CONFIG = require('./src/config');
-const GITHUB = require('./src/github');
+const Config = require('./src/config');
+const Github = require('./src/github');
 const UI = require('./src/ui');
 
 UI.printWelcome();
@@ -11,14 +11,14 @@ main().then((exitCode) => {
 
 async function main() {
   try {
-    if (!CONFIG.load()) {
+    if (!Config.load()) {
       const token = await UI.promptAuth();
-      await CONFIG.save(token);
+      await Config.save(token);
     }
 
     const repositories = await UI.getRepositories();
     if (!repositories) {
-      CONFIG.deleteFile();
+      Config.deleteFile();
       return await main();
     }
 
@@ -39,8 +39,8 @@ async function main() {
       UI.printNoReposDeleted();
     }
   } catch (error) {
-    if (error instanceof GITHUB.AuthError || error instanceof GITHUB.ScopesError) {
-      CONFIG.deleteFile();
+    if (error instanceof Github.AuthError || error instanceof Github.ScopesError) {
+      Config.deleteFile();
 
       return await main();
     }

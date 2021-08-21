@@ -3,11 +3,11 @@ const ora = require('ora');
 const { prompt } = require('enquirer');
 const clipboard = require('clipboardy');
 
-const UTILS = require('./utils');
-const GITHUB = require('./github');
+const Utils = require('./utils');
+const Github = require('./github');
 
 function printWelcome() {
-  const PACKAGE = UTILS.getPackageDetails().package;
+  const PACKAGE = Utils.getPackageDetails().package;
 
   const name = PACKAGE.name;
   const description = PACKAGE.description;
@@ -26,7 +26,7 @@ async function promptAuth() {
 
   console.log(style.dim(strSignIn));
 
-  const token = await GITHUB.auth((verification) => {
+  const token = await Github.auth((verification) => {
     requestToken(verification);
     spinner.start();
 
@@ -72,7 +72,7 @@ async function getRepositories() {
   const spinner = ora(strMessage).start();
 
   try {
-    const repositories = await GITHUB.getRepositories();
+    const repositories = await Github.getRepositories();
 
     const count = repositories.length;
     const strSucceed = printReposFound(count);
@@ -82,7 +82,7 @@ async function getRepositories() {
   } catch (error) {
     spinner.stop();
 
-    if (error instanceof GITHUB.AuthError || error instanceof GITHUB.ScopesError) {
+    if (error instanceof Github.AuthError || error instanceof Github.ScopesError) {
       throw error;
     }
   }
@@ -100,7 +100,7 @@ async function deleteRepositories(repositories) {
   for (const repo of repositories) {
     const spinner = ora(style.dim(repo)).start();
 
-    const status = await GITHUB.deleteRepository(repo);
+    const status = await Github.deleteRepository(repo);
 
     if (status) {
       count++;
