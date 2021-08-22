@@ -25,34 +25,25 @@ async function auth(onVerificationCode) {
 async function getRepositories() {
   const res = await apiCall('GET', '/user/repos');
 
-  const scopes = res.headers['x-oauth-scopes'];
   const repos = res.data;
-
-  if (!checkPermissions(scopes)) throw new ScopesError();
 
   return repos;
 }
 
 function checkPermissions(authScopes) {
-  authScopes = authScopes.split(', ');
-  authScopes.sort();
-  const clientScopes = CLIENT_SCOPES.sort();
+  const currentScopes = authScopes.split(', ');
 
-  if (authScopes.length !== clientScopes.length) {
+  if (currentScopes.length < CLIENT_SCOPES.length) {
     return false;
   }
 
-  for (let i = 0; i < clientScopes.length; i++) {
-    if (authScopes[i] !== clientScopes[i]) {
-      return false;
-    }
-  }
-
-  return true;
+  return CLIENT_SCOPES.every((scope) => {
+    return currentScopes.includes(scope);
+  });
 }
 
-async function deleteRepository(repo) {
-  const res = await apiCall('DELETE', `/repos/${repo}`);
+async function deleteRepository(repository) {
+  const res = await apiCall('DELETE', `/repos/${repository}`);
 
   if (res.status !== 204) return false;
 
@@ -77,7 +68,13 @@ async function apiCall(method, endpoint) {
   };
 
   try {
-    return await request(query, params);
+    const res = await request(query, params);
+
+    const scopes = res.headers['x-oauth-scopes'];
+
+    if (!checkPermissions(scopes)) throw new ScopesError();
+
+    return res;
   } catch (error) {
     if (error.status === 401) throw new AuthError();
 
@@ -88,7 +85,7 @@ async function apiCall(method, endpoint) {
 class AuthError extends Error {
   constructor(message) {
     super(message);
-    this.message = message ? message : 'Unauthorized';
+    this.message = message || 'Unauthorized';
     this.code = 401;
   }
 }
@@ -96,7 +93,7 @@ class AuthError extends Error {
 class ScopesError extends Error {
   constructor(message) {
     super(message);
-    this.message = message ? message : 'Client and token scopes missmatch';
+    this.message = message || 'Client and token scopes missmatch';
   }
 }
 
