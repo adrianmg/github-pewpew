@@ -10,6 +10,9 @@
     "index.js",
     "src"
   ],
+  "scripts": {
+    "test": "mocha"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/adrianmg/github-pewpew.git"
@@ -33,5 +36,8 @@
     "clipboardy": "^2.3.0",
     "enquirer": "^2.3.6",
     "ora": "^5.4.1"
+  },
+  "devDependencies": {
+    "mocha": "^9.1.0"
   }
 }
