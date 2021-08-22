@@ -33,7 +33,6 @@ I made this little CLI tool to clean up repositories quickly. I'm planning to ad
 - `--force` flag to avoid confirmation
 - `--regex` flag to delete repos matching a regex
 - `--list` flag to delete repos from a comma-separated list
-- Add some testing 😊
 
 ## Questions? Ideas? Bugs?
 
