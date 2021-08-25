@@ -7,6 +7,7 @@ const CLIENT_ID = process.env.DEV ? process.env.CLIENT_ID : CLIENT_ID_PROD;
 const CLIENT_TYPE = 'oauth-app';
 const CLIENT_SCOPES = ['delete_repo', 'repo'];
 const API_PAGINATION = 100;
+const API_AFFILIATION = 'owner, collaborator';
 
 async function auth(onVerificationCode) {
   const auth = createOAuthDeviceAuth({
@@ -23,9 +24,18 @@ async function auth(onVerificationCode) {
 }
 
 async function getRepositories() {
-  const res = await apiCall('GET', '/user/repos');
+  let page = 1;
+  const repos = [];
 
-  const repos = res.data;
+  while (true) {
+    const res = await apiCall('GET', '/user/repos', page);
+    const reposCurrentPage = res.data;
+
+    if (reposCurrentPage.length === 0) break;
+
+    repos.push(...reposCurrentPage);
+    page++;
+  }
 
   return repos;
 }
@@ -58,11 +68,13 @@ function setToken(token) {
   return (process.env.GITHUB_TOKEN = token);
 }
 
-async function apiCall(method, endpoint) {
+async function apiCall(method, endpoint, page) {
   const query = `${method} ${endpoint}`;
   const params = {
     headers: { authorization: getAuthHeader() },
     per_page: API_PAGINATION,
+    affiliation: API_AFFILIATION,
+    page: page,
   };
 
   try {

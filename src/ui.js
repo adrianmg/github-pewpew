@@ -52,6 +52,8 @@ function requestToken(verification) {
 
 async function promptSelectRepositories(repositories) {
   try {
+    if (repositories.length === 0) throw error;
+
     return await prompt({
       type: 'autocomplete',
       name: 'repos',
