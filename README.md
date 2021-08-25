@@ -63,6 +63,11 @@ All the tests are written with [mocha](https://mochajs.org/) and can be run with
 ## Questions? Ideas? Bugs?
 
 If you run into any issues or you'd like to share your thoughts, feel free to [open an issue](https://github.com/adrianmg/github-pewpew/issues) in this repository or hit me up on [Twitter](https://twitter.com/adrianmg).
+
+## Contributions
+
+Thanks to [@sergiou87](https://github.com/sergiou87), [@zschiller](https://github.com/zschiller), and [@mamuso](https://github.com/mamuso) for contributing with their feedback and ideas 🙇‍♂️.
+
 ## License
 
 The tool is available as open-source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
