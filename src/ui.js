@@ -52,6 +52,8 @@ function requestToken(verification) {
 
 async function promptSelectRepositories(repositories) {
   try {
+    if (repositories.length === 0) throw error;
+
     return await prompt({
       type: 'autocomplete',
       name: 'repos',
@@ -95,22 +97,28 @@ function printReposFound(count) {
 }
 
 async function deleteRepositories(repositories) {
-  let count = 0;
+  const deletedRepos = [];
 
   for (const repo of repositories) {
-    const spinner = ora(style.dim(repo)).start();
+    const spinner = ora().start();
 
-    const status = await Github.deleteRepository(repo);
+    try {
+      await Github.deleteRepository(repo);
+      deletedRepos.push(repo);
 
-    if (status) {
-      count++;
       spinner.stopAndPersist({ symbol: '', text: style.strikethrough.dim(repo) });
-    } else {
-      spinner.fail(style.dim(`${repo} [ERROR]`));
+    } catch (error) {
+      const message = error.response?.data?.message;
+
+      spinner.fail(style.dim(`${repo} (Oops! ${message})`));
     }
   }
 
-  printConfirmDelete(repositories);
+  if (deletedRepos.length > 0) {
+    printConfirmDelete(deletedRepos);
+  } else {
+    printNoReposDeleted();
+  }
 }
 
 async function promptConfirmDelete(repoCount) {
@@ -137,7 +145,11 @@ async function promptConfirmDelete(repoCount) {
 }
 
 function printConfirmDelete(deletedRepos) {
-  const strConfirm = `🔫 pew pew! ${deletedRepos} repositories deleted suscessfully.`;
+  const count = deletedRepos.length;
+
+  const strDeletedRepos = count > 1 ? deletedRepos.join(', ') : deletedRepos;
+  const strRepos = count > 1 ? 'repositories' : 'repository';
+  const strConfirm = `🔫 pew pew! ${count} ${strRepos} deleted suscessfully: ${strDeletedRepos}`;
   const strRecover = `Recover repositories from github.com/settings/repositories`;
 
   console.log(strConfirm);
@@ -159,6 +171,7 @@ function printNoReposSelected() {
 }
 
 function printError(strError) {
+  console.log();
   return console.log(style.redBright(strError));
 }
 
