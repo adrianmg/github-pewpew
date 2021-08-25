@@ -30,15 +30,13 @@ async function getRepositories() {
   return repos;
 }
 
-function checkPermissions(authScopes) {
-  const currentScopes = authScopes.split(', ');
-
-  if (currentScopes.length < CLIENT_SCOPES.length) {
+function checkPermissions(authScopes, clientScopes) {
+  if (authScopes.length < clientScopes.length) {
     return false;
   }
 
-  return CLIENT_SCOPES.every((scope) => {
-    return currentScopes.includes(scope);
+  return clientScopes.every((scope) => {
+    return authScopes.includes(scope);
   });
 }
 
@@ -70,9 +68,9 @@ async function apiCall(method, endpoint) {
   try {
     const res = await request(query, params);
 
-    const scopes = res.headers['x-oauth-scopes'];
+    const scopes = res.headers['x-oauth-scopes'].split(', ');
 
-    if (!checkPermissions(scopes)) throw new ScopesError();
+    if (!checkPermissions(scopes, CLIENT_SCOPES)) throw new ScopesError();
 
     return res;
   } catch (error) {
@@ -100,6 +98,7 @@ class ScopesError extends Error {
 module.exports = {
   auth,
   getRepositories,
+  checkPermissions,
   deleteRepository,
   setToken,
   AuthError,

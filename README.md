@@ -29,24 +29,40 @@ Have you ever had too much fun with the GitHub API and ended up creating too man
 
 I made this little CLI tool to clean up repositories quickly. I'm planning to add some flags and regexp to delete in bulk in the future. [Let me know](http://twitter.com/adrianmg) if that sounds interesting to you.
 
+## Development
+
+The important parts of the project are the following:
+
+```
+├── .github              GitHub Actions workflows and repo settings
+├── src
+│   ├── config.js        Contains the configuration manager
+│   ├── github.js        Business logic: authentication and API calls
+│   ├── ui.js            CLI interactions
+│   └── utils.js         Lightweight utility functions
+├── test                 
+│   └── test.js          Test coverage with Mocha
+├── .prettierrc          Code formatting configuration
+├── index.js             The main thread of execution
+├── README.md            you're looking at it
+```
+
+To **set up your environment** to develop this tool, run:
+- `npm install`
+- `node index`
+
+You can also run `node index DEV=true CLIENT_ID=<YOUR_TESTING_CLIENT_ID>` if you want to use your own client id for development and testing purposes.
+
+All the tests are written with [mocha](https://mochajs.org/) and can be run with `npm test`.
+
 ## TODO
 - `--force` flag to avoid confirmation
 - `--regex` flag to delete repos matching a regex
 - `--list` flag to delete repos from a comma-separated list
-- Add some testing 😊
 
 ## Questions? Ideas? Bugs?
 
 If you run into any issues or you'd like to share your thoughts, feel free to [open an issue](https://github.com/adrianmg/github-pewpew/issues) in this repository or hit me up on [Twitter](https://twitter.com/adrianmg).
-
-## Development
-
-To set up your environment to develop this tool, run `npm install`. You can run the tool by running `node index` in your terminal.
-
-The file `src/github.js` contains the logic for the authentication  
-
-and `src/utils.` files.
-
 ## License
 
 The tool is available as open-source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
