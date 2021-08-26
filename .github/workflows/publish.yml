@@ -16,7 +16,7 @@ jobs:
       # Setup .npmrc file to publish to npm
       - uses: actions/setup-node@v2
         with:
-          node-version: '10.x'
+          node-version: '14'
           registry-url: 'https://registry.npmjs.org'
       - run: npm install
       # Run tests
@@ -26,13 +26,11 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       # Setup .npmrc file to publish to GitHub Packages
-#       - uses: actions/setup-node@v2
-#         with:
-#           registry-url: 'https://npm.pkg.github.com'
-#       # Waits for the npm registry cache to update
-#       - run: sleep 30s  
-#         shell: bash
-#       # Publish to GitHub Packages
-#       - run: npm publish
-#         env:
-#           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-node@v2
+        with:
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@adrianmg'
+      # Publish to GitHub Packages
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
