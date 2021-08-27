@@ -2,16 +2,17 @@
   "name": "github-pewpew",
   "version": "1.2.0",
   "description": "Clean up and remove those unnecessary GitHub repositories. Pew pew!",
-  "main": "index.js",
   "bin": {
-    "ghpew": "index.js"
+    "ghpew": "./dist/index.js"
   },
   "files": [
-    "index.js",
-    "src"
+    "dist"
   ],
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "clean": "rm -rf dist",
+    "prebuild": "npm run clean",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
@@ -38,6 +39,8 @@
     "ora": "^5.4.1"
   },
   "devDependencies": {
-    "mocha": "^9.1.0"
+    "@types/node": "^16.7.2",
+    "mocha": "^9.1.0",
+    "typescript": "^4.4.2"
   }
 }
