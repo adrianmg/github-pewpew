@@ -1,16 +1,19 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { homedir } from 'os';
 
-const Github = require('./github');
-const Utils = require('./utils');
+import * as Types from '../@types';
+import * as Github from './github';
+import * as Utils from './utils';
 
 const { package: PACKAGE, author: PACKAGE_AUTHOR } = Utils.getPackageDetails();
-const HOME_DIR = require('os').homedir();
+
+const HOME_DIR = homedir();
 const CONFIG_DIR = getConfigDir(HOME_DIR);
 const CONFIG_FILE = path.join(CONFIG_DIR, 'auth.json');
 
-function save(token) {
-  const configuration = {
+function save(token: string): boolean {
+  const configuration: Types.Configuration = {
     _: `This is your ${PACKAGE.name} credentials. DO NOT SHARE!`,
     token: token,
   };
@@ -21,7 +24,7 @@ function save(token) {
   return true;
 }
 
-function load() {
+function load(): any | false {
   const configExists = fs.existsSync(CONFIG_FILE);
 
   if (!configExists) return false;
@@ -32,7 +35,7 @@ function load() {
   return Github.setToken(token);
 }
 
-function deleteFile() {
+function deleteFile(): void | false {
   const configExists = fs.existsSync(CONFIG_FILE);
 
   if (!configExists) return false;
@@ -40,7 +43,7 @@ function deleteFile() {
   return fs.unlinkSync(CONFIG_FILE);
 }
 
-function getConfigDir(homeDir) {
+function getConfigDir(homeDir: string): string {
   const configDir = path.join(
     homeDir,
     process.platform === 'win32'
