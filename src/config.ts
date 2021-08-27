@@ -1,10 +1,10 @@
-import fs from 'fs';
-import path from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
 import { homedir } from 'os';
 
-import * as Types from '../@types';
 import * as Github from './github';
 import * as Utils from './utils';
+import Types from '../@types';
 
 const { package: PACKAGE, author: PACKAGE_AUTHOR } = Utils.getPackageDetails();
 
@@ -54,8 +54,4 @@ function getConfigDir(homeDir: string): string {
   return configDir;
 }
 
-module.exports = {
-  save,
-  load,
-  deleteFile,
-};
+export { save, load, deleteFile };
