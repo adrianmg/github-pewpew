@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-const Config = require('./src/config');
-const Github = require('./src/github');
-const UI = require('./src/ui');
+const Config = require('./config');
+const Github = require('./github');
+const UI = require('./ui');
 
 UI.printWelcome();
 
