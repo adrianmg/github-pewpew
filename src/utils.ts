@@ -1,4 +1,4 @@
-import { PackageDetails } from '../@types/utils';
+import { PackageDetails } from '../@types';
 
 function getPackageDetails(): PackageDetails {
   return {
@@ -7,6 +7,4 @@ function getPackageDetails(): PackageDetails {
   };
 }
 
-module.exports = {
-  getPackageDetails,
-};
+export { getPackageDetails };
