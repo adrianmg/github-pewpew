@@ -149,7 +149,7 @@ function printConfirmDelete(deletedRepos) {
 
   const strDeletedRepos = count > 1 ? deletedRepos.join(', ') : deletedRepos;
   const strRepos = count > 1 ? 'repositories' : 'repository';
-  const strConfirm = `🔫 pew pew! ${count} ${strRepos} deleted suscessfully: ${strDeletedRepos}`;
+  const strConfirm = `🔫 pew pew! ${count} ${strRepos} deleted successfully: ${strDeletedRepos}`;
   const strRecover = `Recover repositories from github.com/settings/repositories`;
 
   console.log(strConfirm);
