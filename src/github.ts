@@ -1,15 +1,17 @@
-const { createOAuthDeviceAuth } = require('@octokit/auth-oauth-device');
-const { request } = require('@octokit/request');
+import { createOAuthDeviceAuth } from '@octokit/auth-oauth-device';
+import { request } from '@octokit/request';
+import { OnVerificationCallback } from '@octokit/auth-oauth-device/dist-types/types';
+import { RequestError, OctokitResponse } from '@octokit/types';
 
 const CLIENT_ID_PROD = 'ed7c193c5b64ee06192a';
 
-const CLIENT_ID = process.env.DEV ? process.env.CLIENT_ID : CLIENT_ID_PROD;
+const CLIENT_ID = process.env.DEV ? (process.env.CLIENT_ID as string) : CLIENT_ID_PROD;
 const CLIENT_TYPE = 'oauth-app';
 const CLIENT_SCOPES = ['delete_repo', 'repo'];
 const API_PAGINATION = 100;
 const API_AFFILIATION = 'owner, collaborator';
 
-async function auth(onVerificationCode) {
+async function auth(onVerificationCode: OnVerificationCallback): Promise<string> {
   const auth = createOAuthDeviceAuth({
     clientType: CLIENT_TYPE,
     clientId: CLIENT_ID,
@@ -23,7 +25,7 @@ async function auth(onVerificationCode) {
   return token;
 }
 
-async function getRepositories() {
+async function getRepositories(): Promise<any[]> {
   let page = 1;
   const repos = [];
 
@@ -40,7 +42,7 @@ async function getRepositories() {
   return repos;
 }
 
-function checkPermissions(authScopes, clientScopes) {
+function checkPermissions(authScopes: string[], clientScopes: string[]): boolean {
   if (authScopes.length < clientScopes.length) {
     return false;
   }
@@ -50,7 +52,7 @@ function checkPermissions(authScopes, clientScopes) {
   });
 }
 
-async function deleteRepository(repository) {
+async function deleteRepository(repository: string): Promise<boolean> {
   const res = await apiCall('DELETE', `/repos/${repository}`);
 
   if (res.status !== 204) return false;
@@ -58,17 +60,21 @@ async function deleteRepository(repository) {
   return true;
 }
 
-function getAuthHeader() {
+function getAuthHeader(): string {
   return `token ${process.env.GITHUB_TOKEN}`;
 }
 
-function setToken(token) {
+function setToken(token: string): string | false {
   if (!token) return false;
 
   return (process.env.GITHUB_TOKEN = token);
 }
 
-async function apiCall(method, endpoint, page) {
+async function apiCall(
+  method: 'GET' | 'DELETE',
+  endpoint: string,
+  page?: number
+): Promise<OctokitResponse<any>> {
   const query = `${method} ${endpoint}`;
   const params = {
     headers: { authorization: getAuthHeader() },
@@ -80,20 +86,24 @@ async function apiCall(method, endpoint, page) {
   try {
     const res = await request(query, params);
 
-    const scopes = res.headers['x-oauth-scopes'].split(', ');
+    const scopes = res.headers['x-oauth-scopes']?.split(', ') as string[];
 
     if (!checkPermissions(scopes, CLIENT_SCOPES)) throw new ScopesError();
 
     return res;
   } catch (error) {
-    if (error.status === 401) throw new AuthError();
+    const status = (error as RequestError).status;
+
+    if (status === 401) throw new AuthError();
 
     throw error;
   }
 }
 
 class AuthError extends Error {
-  constructor(message) {
+  code: number;
+
+  constructor(message?: string) {
     super(message);
     this.message = message || 'Unauthorized';
     this.code = 401;
@@ -101,13 +111,13 @@ class AuthError extends Error {
 }
 
 class ScopesError extends Error {
-  constructor(message) {
+  constructor(message?: string) {
     super(message);
     this.message = message || 'Client and token scopes missmatch';
   }
 }
 
-module.exports = {
+export {
   auth,
   getRepositories,
   checkPermissions,
