@@ -1,14 +1,18 @@
 <p align="center">
-    <h1 align="center">🔫 github-pewpew</h1>
-    <p align="center">Pew pew those unnecessary GitHub repos!<br>Clean up your unused repositories within seconds from your CLI.</p>
-		<p align="center">
-			<a href="https://badge.fury.io/js/github-pewpew"><img src="https://badge.fury.io/js/github-pewpew.svg" alt="npm version" height="18"></a>
-		</p>
+	<h1 align="center">
+		<img src="./res/logo.png" alt="Logo" width="152">
+		<br>
+		github-pewpew
+	</h1>
+	<p align="center">Pew pew needless GitHub repos!<br>Clean up your unused repos via the CLI within seconds.</p>
+	<p align="center">
+		<a href="https://badge.fury.io/js/github-pewpew"><img src="https://badge.fury.io/js/github-pewpew.svg" alt="npm version" height="18"></a>
+	</p>
 </p>
 
 <p align="center">
 	<br>
-	<img src="./res/preview.gif" alt="Preview of the tool" width="700">
+	<img src="./res/preview.gif" alt="Preview of the tool" width="600">
 	<br>
 </p>
 
@@ -28,6 +32,8 @@ ghpew
 Have you ever had too much fun with the GitHub API and ended up creating too many dummy repos? Me too 😅!
 
 I made this little CLI tool to clean up repositories quickly. I'm planning to add some flags and regexp to delete in bulk in the future. [Let me know](http://twitter.com/adrianmg) if that sounds interesting to you.
+
+Do you want to know more? [Visit the official website](https://adrianmato.com/pewpew).
 
 ## Development
 
@@ -65,8 +71,7 @@ All the tests are written with [mocha](https://mochajs.org/) and can be run with
 If you run into any issues or you'd like to share your thoughts, feel free to [open an issue](https://github.com/adrianmg/github-pewpew/issues) in this repository or hit me up on [Twitter](https://twitter.com/adrianmg).
 
 ## Contributions
-
-Thanks to [@sergiou87](https://github.com/sergiou87), [@zschiller](https://github.com/zschiller), and [@mamuso](https://github.com/mamuso) for contributing with their feedback and ideas 🙇‍♂️.
+Logo designed by [Rapha Lopes](https://twitter.com/raphaellopesph). Thanks to [@sergiou87](https://github.com/sergiou87), [@zschiller](https://github.com/zschiller), and [@mamuso](https://github.com/mamuso) for contributing with their feedback and ideas 🙇‍♂️.
 
 ## License
 
