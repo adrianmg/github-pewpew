@@ -1,18 +1,18 @@
 <p align="center">
-    <h1 align="center">
-			<img src="./res/logo.png" alt="Logo" width="152">
-			<br>
-			github-pewpew
-		</h1>
-    <p align="center">Pew pew needless GitHub repos!<br>Clean up your unused repos via the CLI within seconds.</p>
-		<p align="center">
-			<a href="https://badge.fury.io/js/github-pewpew"><img src="https://badge.fury.io/js/github-pewpew.svg" alt="npm version" height="18"></a>
-		</p>
+	<h1 align="center">
+		<img src="./res/logo.png" alt="Logo" width="152">
+		<br>
+		github-pewpew
+	</h1>
+	<p align="center">Pew pew needless GitHub repos!<br>Clean up your unused repos via the CLI within seconds.</p>
+	<p align="center">
+		<a href="https://badge.fury.io/js/github-pewpew"><img src="https://badge.fury.io/js/github-pewpew.svg" alt="npm version" height="18"></a>
+	</p>
 </p>
 
 <p align="center">
 	<br>
-	<img src="./res/preview.gif" alt="Preview of the tool" width="540">
+	<img src="./res/preview.gif" alt="Preview of the tool" width="600">
 	<br>
 </p>
 
