@@ -45,7 +45,9 @@ function getConfigDir(homeDir) {
     homeDir,
     process.platform === 'win32'
       ? path.join('AppData', 'Roaming', PACKAGE_AUTHOR, PACKAGE.name)
-      : path.join('Library', `com.${PACKAGE_AUTHOR}.${PACKAGE.name}`)
+      : process.platform == 'darwin'
+      ? path.join('Library', `com.${PACKAGE_AUTHOR}.${PACKAGE.name}`)
+      : path.join('.config', `com.${PACKAGE_AUTHOR}.${PACKAGE.name}`)
   );
 
   return configDir;

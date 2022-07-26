@@ -16,27 +16,49 @@ async function main() {
       Config.save(token);
     }
 
-    const repositories = await UI.getRepositories();
-    if (!repositories) {
-      Config.deleteFile();
-      return await main();
-    }
+    if (process.argv[2] == 'codespaces') {
+      const codespaces = await UI.getCodespaces();
 
-    let res = await UI.promptSelectRepositories(repositories);
-    if (res.repos.length === 0) {
-      UI.printNoReposSelected();
+      let res = await UI.promptSelectCodespaces(codespaces);
 
-      return 0;
-    }
+      if (res.codespaces.length === 0) {
+        UI.printNoCodespaceSelected();
 
-    const reposToDelete = res.repos;
-    const repoCount = reposToDelete.length;
-    res = await UI.promptConfirmDelete(repoCount);
+        return 0;
+      }
 
-    if (res.confirmDelete === 'Yes') {
-      await UI.deleteRepositories(reposToDelete);
+      const codespacesToDelete = res.codespaces;
+      const codespaceCount = codespacesToDelete.length;
+      res = await UI.promptConfirmDelete(codespaceCount, 'codespaces');
+
+      if (res.confirmDelete === 'Yes') {
+        await UI.deleteCodespaces(codespacesToDelete);
+      } else {
+        UI.printNoReposDeleted();
+      }
     } else {
-      UI.printNoReposDeleted();
+      const repositories = await UI.getRepositories();
+      if (!repositories) {
+        Config.deleteFile();
+        return await main();
+      }
+
+      let res = await UI.promptSelectRepositories(repositories);
+      if (res.repos.length === 0) {
+        UI.printNoReposSelected();
+
+        return 0;
+      }
+
+      const reposToDelete = res.repos;
+      const repoCount = reposToDelete.length;
+      res = await UI.promptConfirmDelete(repoCount, 'repos');
+
+      if (res.confirmDelete === 'Yes') {
+        await UI.deleteRepositories(reposToDelete);
+      } else {
+        UI.printNoReposDeleted();
+      }
     }
   } catch (error) {
     if (error instanceof Github.AuthError || error instanceof Github.ScopesError) {
