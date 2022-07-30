@@ -1,69 +1,46 @@
 #!/usr/bin/env node
+const { Command } = require('commander');
+
 const Config = require('./src/config');
 const Github = require('./src/github');
 const UI = require('./src/ui');
+const Utils = require('./src/utils');
+
+const reposCommand = require('./src/commands/repos');
+const codespacesCommand = require('./src/commands/codespaces');
 
 UI.printWelcome();
 
-main().then((exitCode) => {
-  process.exit(exitCode);
-});
-
-async function main() {
+const main = async () => {
   try {
+    const PACKAGE = Utils.getPackageDetails().package;
+
+    const program = new Command();
+
+    program.name(PACKAGE.name).description(PACKAGE.description).version(PACKAGE.version);
+
+    program.action(reposCommand);
+
+    program.addHelpCommand('help');
+
+    program
+      .command('codespaces')
+      .alias('codespace')
+      .description('Delete codespaces')
+      .action(codespacesCommand);
+
+    program
+      .command('repos')
+      .alias('repo')
+      .description('Delete repositories')
+      .action(reposCommand);
+
     if (!Config.load()) {
       const token = await UI.promptAuth();
       Config.save(token);
     }
 
-    if (process.argv[2] == 'codespaces') {
-      const codespaces = await UI.getCodespaces();
-      if (!codespaces) {
-        Config.deleteFile();
-        return await main();
-      }
-
-      let res = await UI.promptSelectCodespaces(codespaces);
-
-      if (res.codespaces.length === 0) {
-        UI.printNoCodespaceSelected();
-
-        return 0;
-      }
-
-      const codespacesToDelete = res.codespaces;
-      const codespaceCount = codespacesToDelete.length;
-      res = await UI.promptConfirmDelete(codespaceCount, 'codespaces');
-
-      if (res.confirmDelete === 'Yes') {
-        await UI.deleteCodespaces(codespacesToDelete);
-      } else {
-        UI.printNoReposDeleted();
-      }
-    } else {
-      const repositories = await UI.getRepositories();
-      if (!repositories) {
-        Config.deleteFile();
-        return await main();
-      }
-
-      let res = await UI.promptSelectRepositories(repositories);
-      if (res.repos.length === 0) {
-        UI.printNoReposSelected();
-
-        return 0;
-      }
-
-      const reposToDelete = res.repos;
-      const repoCount = reposToDelete.length;
-      res = await UI.promptConfirmDelete(repoCount, 'repos');
-
-      if (res.confirmDelete === 'Yes') {
-        await UI.deleteRepositories(reposToDelete);
-      } else {
-        UI.printNoReposDeleted();
-      }
-    }
+    program.parseAsync(process.argv);
   } catch (error) {
     if (error instanceof Github.AuthError || error instanceof Github.ScopesError) {
       Config.deleteFile();
@@ -74,4 +51,6 @@ async function main() {
     UI.printError(error);
     return;
   }
-}
+};
+
+main();
