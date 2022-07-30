@@ -18,6 +18,10 @@ async function main() {
 
     if (process.argv[2] == 'codespaces') {
       const codespaces = await UI.getCodespaces();
+      if (!codespaces) {
+        Config.deleteFile();
+        return await main();
+      }
 
       let res = await UI.promptSelectCodespaces(codespaces);
 
