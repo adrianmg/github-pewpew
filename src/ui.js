@@ -20,6 +20,16 @@ function printWelcome() {
   }
 }
 
+const printHelp = () => {
+  console.log(
+    `Commands:
+  codespaces	Delete codespaces
+  repos     	Delete repositories
+  help      	Show this help message
+`
+  );
+};
+
 async function promptAuth() {
   const strSignIn = `Sign in to GitHub:`;
   const spinner = ora();
@@ -275,6 +285,7 @@ function printError(strError) {
 
 module.exports = {
   printWelcome,
+  printHelp,
   promptAuth,
   getRepositories,
   getCodespaces,
