@@ -51,7 +51,7 @@ The important parts of the project are the following:
 ```
 ├── .github                GitHub Actions workflows and repo settings
 ├── src
-│	├── commands
+│   ├── commands
 │   │   ├── codespaces.js  Contains the command to delete codespaces
 │   │   └── repos.js       Contains the command to delete repos
 │   ├── config.js          Contains the configuration manager
