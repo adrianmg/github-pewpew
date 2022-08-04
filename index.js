@@ -31,7 +31,10 @@ const main = async () => {
         UI.printHelp();
         break;
       default:
-        await reposCommand();
+        if (!command) {
+          await reposCommand();
+        }
+        UI.printHelp();
     }
   } catch (error) {
     if (error instanceof Github.AuthError || error instanceof Github.ScopesError) {
