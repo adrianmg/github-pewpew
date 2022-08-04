@@ -212,15 +212,7 @@ async function promptConfirmDelete(count, type) {
       {
         name: 'Yes',
         message: `${style.redBright(
-          `Yes, delete ${
-            count > 1
-              ? type === 'repos'
-                ? 'repositories'
-                : 'codespaces'
-              : type === 'repos'
-              ? 'repository'
-              : 'codespace'
-          } (${count})`
+          `Yes, delete ${Utils.getLabel(type, count)} (${count})`
         )}`,
         value: true,
       },
@@ -237,14 +229,7 @@ function printConfirmDelete(deletedItems, type) {
   const count = deletedItems.length;
 
   const strDeletedItems = count > 1 ? deletedItems.join(', ') : deletedItems;
-  const strItems =
-    count > 1
-      ? type === 'repos'
-        ? 'repositories'
-        : 'codespaces'
-      : type === 'repos'
-      ? 'repository'
-      : 'codespace';
+  const strItems = Utils.getLabel(type, count);
   const strConfirm = `🔫 pew pew! ${count} ${strItems} deleted successfully: ${strDeletedItems}`;
   const strRecover = `Recover repositories from github.com/settings/repositories`;
 
