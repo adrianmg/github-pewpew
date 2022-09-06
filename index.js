@@ -33,6 +33,7 @@ const main = async () => {
       default:
         if (!command) {
           await reposCommand();
+          break;
         }
         UI.printHelp();
     }
