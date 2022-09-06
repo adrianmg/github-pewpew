@@ -10,7 +10,7 @@ const labels = {
   codespaces: { singular: 'codespace', plural: 'codespaces' },
 };
 
-function getLabel(type, count) {
+function getUILabel(type, count) {
   const { singular, plural } = labels[type];
 
   return count > 1 ? plural : singular;
@@ -18,5 +18,5 @@ function getLabel(type, count) {
 
 module.exports = {
   getPackageDetails,
-  getLabel,
+  getUILabel,
 };
