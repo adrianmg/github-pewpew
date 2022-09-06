@@ -10,13 +10,18 @@ const labels = {
   codespaces: { singular: 'codespace', plural: 'codespaces' },
 };
 
-function getUILabel(type, count) {
+function uiGetLabel(type, count) {
   const { singular, plural } = labels[type];
 
   return count > 1 ? plural : singular;
 }
 
+function uiHelpGetSpacing() {
+  return '  ';
+}
+
 module.exports = {
   getPackageDetails,
-  getUILabel,
+  uiGetLabel,
+  uiHelpGetSpacing,
 };

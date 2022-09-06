@@ -20,15 +20,36 @@ function printWelcome() {
   }
 }
 
-const printHelp = () => {
-  console.log(
-    `Commands:
-  codespaces	Delete codespaces
-  repos     	Delete repositories
-  help      	Show this help message
-`
-  );
-};
+function printHelp() {
+  printHelpHeader('Usage');
+  printHelpUsage();
+
+  console.log();
+
+  printHelpHeader('Commands');
+  printHelpCommand('codespaces', 'Delete codespaces');
+  printHelpCommand('repos', 'Delete repositories');
+  printHelpCommand('help', '\tShow help');
+
+  console.log();
+}
+
+function printHelpUsage() {
+  const command = Object.keys(Utils.getPackageDetails().package.bin)[0];
+  const spacing = Utils.uiHelpGetSpacing();
+
+  console.log(`${spacing}${command} <command>`);
+}
+
+function printHelpHeader(text) {
+  const header = text.toUpperCase();
+  console.log(style.bold(header));
+}
+
+function printHelpCommand(command, description) {
+  const spacing = Utils.uiHelpGetSpacing();
+  console.log(`${spacing}${command}:\t${description}`);
+}
 
 async function promptAuth() {
   const strSignIn = `Sign in to GitHub:`;
@@ -212,7 +233,7 @@ async function promptConfirmDelete(count, type) {
       {
         name: 'Yes',
         message: `${style.redBright(
-          `Yes, delete ${Utils.getLabel(type, count)} (${count})`
+          `Yes, delete ${Utils.uiGetLabel(type, count)} (${count})`
         )}`,
         value: true,
       },
@@ -229,8 +250,7 @@ function printConfirmDelete(deletedItems, type) {
   const count = deletedItems.length;
 
   const strDeletedItems = count > 1 ? deletedItems.join(', ') : deletedItems;
-  const strItems = Utils.getLabel(type, count);
-  const strConfirm = `🔫 pew pew! ${count} ${strItems} deleted successfully: ${strDeletedItems}`;
+  const strItems = Utils.uiGetLabel(type, count);
   const strRecover = `Recover repositories from github.com/settings/repositories`;
 
   console.log(strConfirm);
