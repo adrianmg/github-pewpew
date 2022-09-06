@@ -86,7 +86,7 @@ If you run into any issues or you'd like to share your thoughts, feel free to [o
 
 ## Contributions
 
-Logo designed by [Rapha Lopes](https://twitter.com/raphaellopesph). Thanks to [@sergiou87](https://github.com/sergiou87), [@zschiller](https://github.com/zschiller), and [@mamuso](https://github.com/mamuso) for contributing with their feedback and ideas 🙇‍♂️.
+Logo designed by [Rapha Lopes](https://twitter.com/raphaellopesph). Thanks to [@sergiou87](https://github.com/sergiou87), [@zschiller](https://github.com/zschiller), [@mamuso](https://github.com/mamuso), and [@anishde12020](https://github.com/anishde12020) for contributing with their feedback and ideas 🙇‍♂️.
 
 ## License
 
