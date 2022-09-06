@@ -9,6 +9,7 @@ const reposCommand = async () => {
   }
 
   let res = await UI.promptSelectRepositories(repositories);
+
   if (res.repos.length === 0) {
     UI.printNoReposSelected();
 
