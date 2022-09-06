@@ -10,11 +10,11 @@ const labels = {
   codespaces: { singular: 'codespace', plural: 'codespaces' },
 };
 
-const getLabel = (type, count) => {
+function getLabel(type, count) {
   const { singular, plural } = labels[type];
 
   return count > 1 ? plural : singular;
-};
+}
 
 module.exports = {
   getPackageDetails,
