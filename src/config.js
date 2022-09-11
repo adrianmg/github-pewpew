@@ -15,7 +15,7 @@ function save(token) {
     token: token,
   };
 
-  if (!fs.existsSync(CONFIG_DIR)) fs.mkdirSync(CONFIG_DIR);
+  if (!fs.existsSync(CONFIG_DIR)) fs.mkdirSync(CONFIG_DIR, { recursive: true });
   fs.writeFileSync(CONFIG_FILE, JSON.stringify(configuration), 'utf8');
 
   return true;
