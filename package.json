@@ -32,7 +32,7 @@
   },
   "homepage": "https://github.com/adrianmg/github-pewpew",
   "dependencies": {
-    "@octokit/auth-oauth-device": "^3.1.2",
+    "@octokit/auth-oauth-device": "^4.0.2",
     "clipboardy": "^2.3.0",
     "enquirer": "^2.3.6",
     "ora": "^5.4.1"
