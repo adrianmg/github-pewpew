@@ -1,6 +1,6 @@
 {
   "name": "github-pewpew",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Clean up and remove those unnecessary GitHub repositories. Pew pew!",
   "main": "index.js",
   "bin": {
