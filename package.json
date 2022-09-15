@@ -38,6 +38,6 @@
     "ora": "^5.4.1"
   },
   "devDependencies": {
-    "mocha": "^9.1.0"
+    "mocha": "^10.0.0"
   }
 }
