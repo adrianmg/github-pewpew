@@ -21,6 +21,8 @@ const main = async () => {
     switch (command) {
       case 'repos':
       case 'repo':
+      case 'repository':
+      case 'repositories':
         await reposCommand();
         break;
       case 'codespaces':
