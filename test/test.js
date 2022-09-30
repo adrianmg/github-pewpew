@@ -1,6 +1,6 @@
-const assert = require('assert');
+import assert from 'assert';
 
-const Github = require('../src/github');
+import Github from '../src/github.js';
 
 describe('Github.checkPermissions(authScopes, clientScopes)', () => {
   it('should return true if authScopes and clientScopes contain the same scopes in the SAME order', () => {
