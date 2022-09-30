@@ -6,9 +6,10 @@ const clipboard = require('clipboardy');
 const Utils = require('./utils');
 const Github = require('./github');
 
-function printWelcome() {
-  const PACKAGE = Utils.getPackageDetails().package;
+const PACKAGE = Utils.getPackageDetails().package;
+const PACKAGE_COMMAND = Object.keys(Utils.getPackageDetails().package.bin)[0];
 
+function printWelcome() {
   const name = PACKAGE.name;
   const description = PACKAGE.description;
   const version = PACKAGE.version;
@@ -35,7 +36,7 @@ function printHelp() {
 }
 
 function printHelpUsage() {
-  const command = Object.keys(Utils.getPackageDetails().package.bin)[0];
+  const command = PACKAGE_COMMAND;
   const spacing = Utils.uiHelpGetSpacing();
 
   console.log(`${spacing}${command} <command>`);
