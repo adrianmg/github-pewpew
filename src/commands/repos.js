@@ -1,5 +1,5 @@
-const Config = require('../config');
-const UI = require('../ui');
+import Config from '../config.js';
+import UI from '../ui.js';
 
 const reposCommand = async () => {
   const repositories = await UI.getRepositories();
@@ -27,4 +27,4 @@ const reposCommand = async () => {
   }
 };
 
-module.exports = reposCommand;
+export default reposCommand;

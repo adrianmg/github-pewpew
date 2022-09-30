@@ -1,11 +1,12 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
 
-const Github = require('./github');
-const Utils = require('./utils');
+import Github from './github.js';
+import Utils from './utils.js';
 
 const { package: PACKAGE, author: PACKAGE_AUTHOR } = Utils.getPackageDetails();
-const HOME_DIR = require('os').homedir();
+const HOME_DIR = os.homedir();
 const CONFIG_DIR = getConfigDir(HOME_DIR);
 const CONFIG_FILE = path.join(CONFIG_DIR, 'auth.json');
 
@@ -53,7 +54,7 @@ function getConfigDir(homeDir) {
   return configDir;
 }
 
-module.exports = {
+export default {
   save,
   load,
   deleteFile,

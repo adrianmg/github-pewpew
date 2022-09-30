@@ -1,5 +1,5 @@
-const { createOAuthDeviceAuth } = require('@octokit/auth-oauth-device');
-const { request } = require('@octokit/request');
+import { createOAuthDeviceAuth } from '@octokit/auth-oauth-device';
+import { request } from '@octokit/request';
 
 const CLIENT_ID_PROD = 'ed7c193c5b64ee06192a';
 
@@ -133,7 +133,7 @@ class ScopesError extends Error {
   }
 }
 
-module.exports = {
+export default {
   auth,
   getRepositories,
   getCodespaces,

@@ -1,5 +1,5 @@
-const Config = require('../config');
-const UI = require('../ui');
+import Config from '../config.js';
+import UI from '../ui.js';
 
 const codespacesCommand = async () => {
   const codespaces = await UI.getCodespaces();
@@ -27,4 +27,4 @@ const codespacesCommand = async () => {
   }
 };
 
-module.exports = codespacesCommand;
+export default codespacesCommand;

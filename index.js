@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-const Config = require('./src/config');
-const Github = require('./src/github');
-const UI = require('./src/ui');
+import Config from './src/config.js';
+import Github from './src/github.js';
+import UI from './src/ui.js';
 
-const reposCommand = require('./src/commands/repos');
-const codespacesCommand = require('./src/commands/codespaces');
+import reposCommand from './src/commands/repos.js';
+import codespacesCommand from './src/commands/codespaces.js';
 
 UI.printWelcome();
 

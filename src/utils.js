@@ -1,6 +1,11 @@
+import { createRequire } from 'module';
+
 function getPackageDetails() {
+  const require = createRequire(import.meta.url);
+  const data = require('../package.json');
+
   return {
-    package: require('../package.json'),
+    package: data,
     author: 'adrianmg',
   };
 }
@@ -20,7 +25,7 @@ function uiHelpGetSpacing() {
   return '  ';
 }
 
-module.exports = {
+export default {
   getPackageDetails,
   uiGetLabel,
   uiHelpGetSpacing,

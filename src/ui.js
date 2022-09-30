@@ -1,10 +1,11 @@
-const style = require('ansi-colors');
-const ora = require('ora');
-const { prompt } = require('enquirer');
-const clipboard = require('clipboardy');
+import style from 'ansi-colors';
+import ora from 'ora';
+import clipboard from 'clipboardy';
+import Enquirer from 'enquirer';
+const { prompt } = Enquirer;
 
-const Utils = require('./utils');
-const Github = require('./github');
+import Utils from './utils.js';
+import Github from './github.js';
 
 const PACKAGE = Utils.getPackageDetails().package;
 const PACKAGE_COMMAND = Object.keys(Utils.getPackageDetails().package.bin)[0];
@@ -290,7 +291,7 @@ function printError(strError) {
   return console.log(style.redBright(strError));
 }
 
-module.exports = {
+export default {
   printWelcome,
   printHelp,
   promptAuth,
