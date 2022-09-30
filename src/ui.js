@@ -251,6 +251,7 @@ function printConfirmDelete(deletedItems, type) {
 
   const strDeletedItems = count > 1 ? deletedItems.join(', ') : deletedItems;
   const strItems = Utils.uiGetLabel(type, count);
+  const strConfirm = `🔫 pew pew! ${count} ${strItems} deleted successfully: ${strDeletedItems}`;
   const strRecover = `Recover repositories from github.com/settings/repositories`;
 
   console.log(strConfirm);
