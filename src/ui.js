@@ -164,17 +164,13 @@ async function getCodespaces() {
 }
 
 function printReposFound(count) {
-  const strMessage = `${count} ${
-    count > 1 ? 'repositories' : 'repository'
-  } found. (Press 'space' to select)`;
+  const strMessage = `${count} ${count > 1 ? 'repositories' : 'repository'} found.`;
 
   return strMessage;
 }
 
 function printCodespacesFound(count) {
-  const strMessage = `${count} ${
-    count > 1 ? 'codespaces' : 'codespace'
-  } found. (Press 'space' to select)`;
+  const strMessage = `${count} ${count > 1 ? 'codespaces' : 'codespace'} found.`;
 
   return strMessage;
 }
@@ -279,13 +275,13 @@ function printNoCodespacesDeleted() {
 }
 
 function printNoReposSelected() {
-  const strMessage = `No repositories selected.`;
+  const strMessage = `No repositories selected. (Press 'space' to select)`;
 
   return console.log(style.dim(strMessage));
 }
 
 function printNoCodespaceSelected() {
-  const strMessage = `No codespaces selected.`;
+  const strMessage = `No codespaces selected. (Press 'space' to select)`;
 
   return console.log(style.dim(strMessage));
 }
