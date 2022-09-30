@@ -23,7 +23,7 @@ const codespacesCommand = async () => {
   if (res.confirmDelete === 'Yes') {
     await UI.deleteCodespaces(codespacesToDelete);
   } else {
-    UI.printNoReposDeleted();
+    UI.printNoCodespacesDeleted();
   }
 };
 
