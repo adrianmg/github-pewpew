@@ -93,7 +93,7 @@ async function promptSelectRepositories(repositories) {
       message: 'Select repositories you want to delete:',
       limit: 12,
       multiple: true,
-      footer: '––—————––—————––—————––—————––————————————',
+      footer: '—————————————————————————————————————————————————',
       format: (value) => style.green(value),
       choices: repositories.map(({ full_name }) => full_name),
     });
@@ -109,10 +109,10 @@ async function promptSelectCodespaces(codespaces) {
     return await prompt({
       type: 'autocomplete',
       name: 'codespaces',
-      message: 'Select codespaces you want to delete:',
+      message: `Select codespaces you want to delete:`,
       limit: 12,
       multiple: true,
-      footer: '––—————––—————––—————––—————––————————————',
+      footer: '—————————————————————————————————————————————————',
       format: (value) => style.green(value),
       choices: codespaces.map(({ name }) => name),
     });
@@ -164,13 +164,17 @@ async function getCodespaces() {
 }
 
 function printReposFound(count) {
-  const strMessage = `${count} ${count > 1 ? 'repositories' : 'repository'} found.`;
+  const strMessage = `${count} ${
+    count > 1 ? 'repositories' : 'repository'
+  } found. (Press 'space' to select)`;
 
   return strMessage;
 }
 
 function printCodespacesFound(count) {
-  const strMessage = `${count} ${count > 1 ? 'codespaces' : 'codespace'} found.`;
+  const strMessage = `${count} ${
+    count > 1 ? 'codespaces' : 'codespace'
+  } found. (Press 'space' to select)`;
 
   return strMessage;
 }
