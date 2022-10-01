@@ -4,6 +4,7 @@ on:
   push:
     # branches to consider in the event; optional, defaults to all
     branches:
+      - master
       - main
   # pull_request event is required only for autolabeler
   pull_request:
@@ -11,7 +12,7 @@ on:
     types: [opened, reopened, synchronize]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   update_release_draft:
