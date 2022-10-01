@@ -30,10 +30,12 @@ To quickly start using it, run the following command:
 ghpew
 ```
 
-To delete codespaces, use the following command:
+Available commands:
 
 ```
+ghpew repos
 ghpew codespaces
+ghpew help
 ```
 
 ## Why?
