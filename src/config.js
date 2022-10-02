@@ -1,12 +1,12 @@
 import fs from 'fs';
 import path from 'path';
-import os from 'os';
+import { homedir } from 'os';
 
 import Github from './github.js';
 import Utils from './utils.js';
 
 const { package: PACKAGE, author: PACKAGE_AUTHOR } = Utils.getPackageDetails();
-const HOME_DIR = os.homedir();
+const HOME_DIR = homedir();
 const CONFIG_DIR = getConfigDir(HOME_DIR);
 const CONFIG_FILE = path.join(CONFIG_DIR, 'auth.json');
 
