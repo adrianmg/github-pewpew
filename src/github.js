@@ -1,11 +1,11 @@
-const { createOAuthDeviceAuth } = require('@octokit/auth-oauth-device');
-const { request } = require('@octokit/request');
+import { createOAuthDeviceAuth } from '@octokit/auth-oauth-device';
+import { request } from '@octokit/request';
 
 const CLIENT_ID_PROD = 'ed7c193c5b64ee06192a';
 
 const CLIENT_ID = process.env.DEV ? process.env.CLIENT_ID : CLIENT_ID_PROD;
 const CLIENT_TYPE = 'oauth-app';
-const CLIENT_SCOPES = ['delete_repo', 'repo'];
+const CLIENT_SCOPES = ['delete_repo', 'repo', 'codespace'];
 const API_PAGINATION = 100;
 const API_AFFILIATION = 'owner, collaborator';
 
@@ -40,6 +40,24 @@ async function getRepositories() {
   return repos;
 }
 
+async function getCodespaces() {
+  let page = 1;
+
+  const codespaces = [];
+
+  while (true) {
+    const res = await apiCall('GET', '/user/codespaces', page);
+    const codespacesCurrentPage = res.data.codespaces;
+
+    if (codespacesCurrentPage.length === 0) break;
+
+    codespaces.push(...codespacesCurrentPage);
+    page++;
+  }
+
+  return codespaces;
+}
+
 function checkPermissions(authScopes, clientScopes) {
   if (authScopes.length < clientScopes.length) {
     return false;
@@ -52,6 +70,14 @@ function checkPermissions(authScopes, clientScopes) {
 
 async function deleteRepository(repository) {
   const res = await apiCall('DELETE', `/repos/${repository}`);
+
+  if (res.status !== 204) return false;
+
+  return true;
+}
+
+async function deleteCodespace(codespace) {
+  const res = await apiCall('DELETE', `/user/codespaces/${codespace}`);
 
   if (res.status !== 204) return false;
 
@@ -107,11 +133,13 @@ class ScopesError extends Error {
   }
 }
 
-module.exports = {
+export default {
   auth,
   getRepositories,
+  getCodespaces,
   checkPermissions,
   deleteRepository,
+  deleteCodespace,
   setToken,
   AuthError,
   ScopesError,
