@@ -7,6 +7,7 @@
 	<p align="center">Pew pew needless GitHub repos!<br>Clean up your unused repos via the CLI within seconds.</p>
 	<p align="center">
 		<a href="https://badge.fury.io/js/github-pewpew"><img src="https://badge.fury.io/js/github-pewpew.svg" alt="npm version" height="18"></a>
+		<a href="https://justforfunnoreally.dev/"><img src="https://img.shields.io/badge/justforfunnoreally-dev-9ff" alt="Just for fun. No, really." height="18"></a>
 	</p>
 </p>
 
