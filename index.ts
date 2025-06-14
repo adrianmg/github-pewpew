@@ -9,14 +9,14 @@ import codespacesCommand from './src/commands/codespaces.js';
 
 UI.printWelcome();
 
-const main = async () => {
+const main = async (): Promise<void> => {
   try {
     if (!Config.load()) {
       const token = await UI.promptAuth();
       Config.save(token);
     }
 
-    const command = process.argv[2];
+  const command: string | undefined = process.argv[2];
 
     switch (command) {
       case 'repos':
@@ -47,7 +47,7 @@ const main = async () => {
       return await main();
     }
 
-    UI.printError(error);
+    UI.printError(error as Error);
     return;
   }
 };

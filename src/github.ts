@@ -1,15 +1,21 @@
 import { createOAuthDeviceAuth } from '@octokit/auth-oauth-device';
 import { request } from '@octokit/request';
 
+let requestFunc = request;
+
 const CLIENT_ID_PROD = 'ed7c193c5b64ee06192a';
 
-const CLIENT_ID = process.env.DEV ? process.env.CLIENT_ID : CLIENT_ID_PROD;
+const CLIENT_ID = process.env.DEV ? process.env.CLIENT_ID! : CLIENT_ID_PROD;
 const CLIENT_TYPE = 'oauth-app';
 const CLIENT_SCOPES = ['delete_repo', 'repo', 'codespace'];
 const API_PAGINATION = 100;
 const API_AFFILIATION = 'owner, collaborator';
 
-async function auth(onVerificationCode) {
+export function setRequestFunc(func: typeof request): void {
+  requestFunc = func;
+}
+
+async function auth(onVerificationCode: (verification: any) => void): Promise<string> {
   const auth = createOAuthDeviceAuth({
     clientType: CLIENT_TYPE,
     clientId: CLIENT_ID,
@@ -23,7 +29,7 @@ async function auth(onVerificationCode) {
   return token;
 }
 
-async function getRepositories() {
+async function getRepositories(): Promise<any[]> {
   let page = 1;
   const repos = [];
 
@@ -40,7 +46,7 @@ async function getRepositories() {
   return repos;
 }
 
-async function getCodespaces() {
+async function getCodespaces(): Promise<any[]> {
   let page = 1;
 
   const codespaces = [];
@@ -58,7 +64,7 @@ async function getCodespaces() {
   return codespaces;
 }
 
-function checkPermissions(authScopes, clientScopes) {
+function checkPermissions(authScopes: string[], clientScopes: string[]): boolean {
   if (authScopes.length < clientScopes.length) {
     return false;
   }
@@ -68,7 +74,7 @@ function checkPermissions(authScopes, clientScopes) {
   });
 }
 
-async function deleteRepository(repository) {
+async function deleteRepository(repository: string): Promise<boolean> {
   const res = await apiCall('DELETE', `/repos/${repository}`);
 
   if (res.status !== 204) return false;
@@ -76,7 +82,17 @@ async function deleteRepository(repository) {
   return true;
 }
 
-async function deleteCodespace(codespace) {
+async function archiveRepository(repository: string): Promise<boolean> {
+  const res = await apiCall('PATCH', `/repos/${repository}`, undefined, {
+    archived: true,
+  });
+
+  if (res.status !== 200) return false;
+
+  return true;
+}
+
+async function deleteCodespace(codespace: string): Promise<boolean> {
   const res = await apiCall('DELETE', `/user/codespaces/${codespace}`);
 
   if (res.status !== 204) return false;
@@ -84,42 +100,52 @@ async function deleteCodespace(codespace) {
   return true;
 }
 
-function getAuthHeader() {
+function getAuthHeader(): string {
   return `token ${process.env.GITHUB_TOKEN}`;
 }
 
-function setToken(token) {
+function setToken(token: string | undefined): boolean {
   if (!token) return false;
 
-  return (process.env.GITHUB_TOKEN = token);
+  process.env.GITHUB_TOKEN = token;
+  return true;
 }
 
-async function apiCall(method, endpoint, page) {
+async function apiCall(
+  method: string,
+  endpoint: string,
+  page?: number,
+  data: Record<string, any> = {}
+): Promise<any> {
   const query = `${method} ${endpoint}`;
   const params = {
     headers: { authorization: getAuthHeader() },
     per_page: API_PAGINATION,
     affiliation: API_AFFILIATION,
-    page: page,
+    page,
+    ...data,
   };
 
   try {
-    const res = await request(query, params);
+    const res = await requestFunc(query, params);
 
-    const scopes = res.headers['x-oauth-scopes'].split(', ');
+    const scopes = String(res.headers['x-oauth-scopes']).split(', ');
 
     if (!checkPermissions(scopes, CLIENT_SCOPES)) throw new ScopesError();
 
     return res;
   } catch (error) {
-    if (error.status === 401) throw new AuthError();
+    const err = error as any;
+    if (err.status === 401) throw new AuthError();
 
-    throw error;
+    throw err;
   }
 }
 
 class AuthError extends Error {
-  constructor(message) {
+  code: number;
+
+  constructor(message?: string) {
     super(message);
     this.message = message || 'Unauthorized';
     this.code = 401;
@@ -127,7 +153,7 @@ class AuthError extends Error {
 }
 
 class ScopesError extends Error {
-  constructor(message) {
+  constructor(message?: string) {
     super(message);
     this.message = message || 'Client and token scopes missmatch';
   }
@@ -139,8 +165,10 @@ export default {
   getCodespaces,
   checkPermissions,
   deleteRepository,
+  archiveRepository,
   deleteCodespace,
   setToken,
+  setRequestFunc,
   AuthError,
   ScopesError,
 };

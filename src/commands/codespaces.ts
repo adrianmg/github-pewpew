@@ -1,26 +1,28 @@
 import Config from '../config.js';
 import UI from '../ui.js';
 
-const codespacesCommand = async () => {
+declare function main(): Promise<void>;
+
+const codespacesCommand = async (): Promise<void | number> => {
   const codespaces = await UI.getCodespaces();
   if (!codespaces) {
     Config.deleteFile();
     return await main();
   }
 
-  let res = await UI.promptSelectCodespaces(codespaces);
+  const selection = await UI.promptSelectCodespaces(codespaces);
 
-  if (res.codespaces.length === 0) {
+  if (selection.codespaces.length === 0) {
     UI.printNoCodespaceSelected();
 
     return 0;
   }
 
-  const codespacesToDelete = res.codespaces;
+  const codespacesToDelete = selection.codespaces;
   const codespaceCount = codespacesToDelete.length;
-  res = await UI.promptConfirmDelete(codespaceCount, 'codespaces');
+  const confirm = await UI.promptConfirmDelete(codespaceCount, 'codespaces');
 
-  if (res.confirmDelete === 'Yes') {
+  if (confirm.confirmDelete) {
     await UI.deleteCodespaces(codespacesToDelete);
   } else {
     UI.printNoCodespacesDeleted();

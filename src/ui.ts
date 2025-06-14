@@ -7,10 +7,18 @@ const { prompt } = Enquirer;
 import Utils from './utils.js';
 import Github from './github.js';
 
+interface Repository {
+  full_name: string;
+}
+
+interface Codespace {
+  name: string;
+}
+
 const PACKAGE = Utils.getPackageDetails().package;
 const PACKAGE_COMMAND = Object.keys(Utils.getPackageDetails().package.bin)[0];
 
-function printWelcome() {
+function printWelcome(): void {
   const name = PACKAGE.name;
   const description = PACKAGE.description;
   const version = PACKAGE.version;
@@ -22,7 +30,7 @@ function printWelcome() {
   }
 }
 
-function printHelp() {
+function printHelp(): void {
   printHelpHeader('Usage');
   printHelpUsage();
 
@@ -36,24 +44,24 @@ function printHelp() {
   console.log();
 }
 
-function printHelpUsage() {
+function printHelpUsage(): void {
   const command = PACKAGE_COMMAND;
   const spacing = Utils.uiHelpGetSpacing();
 
   console.log(`${spacing}${command} <command>`);
 }
 
-function printHelpHeader(text) {
+function printHelpHeader(text: string): void {
   const header = text.toUpperCase();
   console.log(style.bold(header));
 }
 
-function printHelpCommand(command, description) {
+function printHelpCommand(command: string, description: string): void {
   const spacing = Utils.uiHelpGetSpacing();
   console.log(`${spacing}${command}:\t${description}`);
 }
 
-async function promptAuth() {
+async function promptAuth(): Promise<string> {
   const strSignIn = `Sign in to GitHub:`;
   const spinner = ora();
 
@@ -72,7 +80,7 @@ async function promptAuth() {
   return token;
 }
 
-function requestToken(verification) {
+function requestToken(verification: any): void {
   const strOpen = `Open:`;
   const strURL = verification.verification_uri;
   const strCode = `Code:`;
@@ -83,9 +91,11 @@ function requestToken(verification) {
   console.log(`${style.bold(strCode)} ${strCodeValue} ${style.dim(strClipboard)}`);
 }
 
-async function promptSelectRepositories(repositories) {
+async function promptSelectRepositories(
+  repositories: Repository[]
+): Promise<{ repos: string[] }> {
   try {
-    if (repositories.length === 0) throw error;
+    if (repositories.length === 0) throw new Error();
 
     return await prompt({
       type: 'autocomplete',
@@ -94,17 +104,19 @@ async function promptSelectRepositories(repositories) {
       limit: 12,
       multiple: true,
       footer: '—————————————————————————————————————————————————',
-      format: (value) => style.green(value),
+      format: (value: string) => style.green(value),
       choices: repositories.map(({ full_name }) => full_name),
-    });
-  } catch (error) {
+    } as any);
+  } catch {
     return { repos: [] };
   }
 }
 
-async function promptSelectCodespaces(codespaces) {
+async function promptSelectCodespaces(
+  codespaces: Codespace[]
+): Promise<{ codespaces: string[] }> {
   try {
-    if (codespaces.length === 0) throw error;
+    if (codespaces.length === 0) throw new Error();
 
     return await prompt({
       type: 'autocomplete',
@@ -113,15 +125,15 @@ async function promptSelectCodespaces(codespaces) {
       limit: 12,
       multiple: true,
       footer: '—————————————————————————————————————————————————',
-      format: (value) => style.green(value),
+      format: (value: string) => style.green(value),
       choices: codespaces.map(({ name }) => name),
-    });
-  } catch (error) {
+    } as any);
+  } catch {
     return { codespaces: [] };
   }
 }
 
-async function getRepositories() {
+async function getRepositories(): Promise<Repository[] | undefined> {
   const strMessage = `Fetching repositories…`;
   const spinner = ora(strMessage).start();
 
@@ -142,7 +154,7 @@ async function getRepositories() {
   }
 }
 
-async function getCodespaces() {
+async function getCodespaces(): Promise<Codespace[] | undefined> {
   const strMessage = `Fetching codespaces…`;
   const spinner = ora(strMessage).start();
 
@@ -163,20 +175,20 @@ async function getCodespaces() {
   }
 }
 
-function printReposFound(count) {
+function printReposFound(count: number): string {
   const strMessage = `${count} ${count > 1 ? 'repositories' : 'repository'} found.`;
 
   return strMessage;
 }
 
-function printCodespacesFound(count) {
+function printCodespacesFound(count: number): string {
   const strMessage = `${count} ${count > 1 ? 'codespaces' : 'codespace'} found.`;
 
   return strMessage;
 }
 
-async function deleteRepositories(repositories) {
-  const deletedRepos = [];
+async function deleteRepositories(repositories: string[]): Promise<void> {
+  const deletedRepos: string[] = [];
 
   for (const repo of repositories) {
     const spinner = ora().start();
@@ -187,7 +199,7 @@ async function deleteRepositories(repositories) {
 
       spinner.stopAndPersist({ symbol: '', text: style.strikethrough.dim(repo) });
     } catch (error) {
-      const message = error.response?.data?.message;
+      const message = (error as any).response?.data?.message;
 
       spinner.fail(style.dim(`${repo} (Oops! ${message})`));
     }
@@ -200,8 +212,33 @@ async function deleteRepositories(repositories) {
   }
 }
 
-async function deleteCodespaces(codespaces) {
-  const deletedCodespaces = [];
+async function archiveRepositories(repositories: string[]): Promise<void> {
+  const archivedRepos: string[] = [];
+
+  for (const repo of repositories) {
+    const spinner = ora().start();
+
+    try {
+      await Github.archiveRepository(repo);
+      archivedRepos.push(repo);
+
+      spinner.stopAndPersist({ symbol: '', text: style.dim(repo) });
+    } catch (error) {
+      const message = (error as any).response?.data?.message;
+
+      spinner.fail(style.dim(`${repo} (Oops! ${message})`));
+    }
+  }
+
+  if (archivedRepos.length > 0) {
+    printConfirmArchive(archivedRepos);
+  } else {
+    printNoReposArchived();
+  }
+}
+
+async function deleteCodespaces(codespaces: string[]): Promise<void> {
+  const deletedCodespaces: string[] = [];
 
   for (const codespace of codespaces) {
     const spinner = ora().start();
@@ -212,7 +249,7 @@ async function deleteCodespaces(codespaces) {
 
       spinner.stopAndPersist({ symbol: '', text: style.strikethrough.dim(codespace) });
     } catch (error) {
-      const message = error.response?.data?.message;
+      const message = (error as any).response?.data?.message;
 
       spinner.fail(style.dim(`${codespace} (Oops! ${message})`));
     }
@@ -225,17 +262,21 @@ async function deleteCodespaces(codespaces) {
   }
 }
 
-async function promptConfirmDelete(count, type) {
+async function promptConfirmDelete(
+  count: number,
+  type: 'repos' | 'codespaces',
+  action: 'delete' | 'archive' = 'delete'
+): Promise<{ confirmDelete: boolean }> {
   return await prompt({
     type: 'select',
     name: 'confirmDelete',
     message: `Are you sure?`,
-    format: (value) => value,
+    format: (value: boolean) => value,
     choices: [
       {
         name: 'Yes',
         message: `${style.redBright(
-          `Yes, delete ${Utils.uiGetLabel(type, count)} (${count})`
+          `Yes, ${action} ${Utils.uiGetLabel(type, count)} (${count})`
         )}`,
         value: true,
       },
@@ -244,11 +285,14 @@ async function promptConfirmDelete(count, type) {
         message: 'Cancel',
         value: false,
       },
-    ],
-  });
+    ]
+  } as any);
 }
 
-function printConfirmDelete(deletedItems, type) {
+function printConfirmDelete(
+  deletedItems: string[],
+  type: 'repos' | 'codespaces'
+): boolean {
   const count = deletedItems.length;
 
   const strDeletedItems = count > 1 ? deletedItems.join(', ') : deletedItems;
@@ -262,33 +306,49 @@ function printConfirmDelete(deletedItems, type) {
   return true;
 }
 
-function printNoReposDeleted() {
+function printConfirmArchive(archivedItems: string[]): boolean {
+  const count = archivedItems.length;
+  const strArchivedItems = count > 1 ? archivedItems.join(', ') : archivedItems;
+  const strConfirm = `📦 ${count} repos archived successfully: ${strArchivedItems}`;
+
+  console.log(strConfirm);
+
+  return true;
+}
+
+function printNoReposDeleted(): void {
   const strMessage = `Rest assured, no repositories were deleted.`;
 
   return console.log(style.dim(strMessage));
 }
 
-function printNoCodespacesDeleted() {
+function printNoReposArchived(): void {
+  const strMessage = `Rest assured, no repositories were archived.`;
+
+  return console.log(style.dim(strMessage));
+}
+
+function printNoCodespacesDeleted(): void {
   const strMessage = `Rest assured, no codespaces were deleted.`;
 
   return console.log(style.dim(strMessage));
 }
 
-function printNoReposSelected() {
+function printNoReposSelected(): void {
   const strMessage = `No repositories selected. (Press 'space' to select)`;
 
   return console.log(style.dim(strMessage));
 }
 
-function printNoCodespaceSelected() {
+function printNoCodespaceSelected(): void {
   const strMessage = `No codespaces selected. (Press 'space' to select)`;
 
   return console.log(style.dim(strMessage));
 }
 
-function printError(strError) {
+function printError(strError: string | Error): void {
   console.log();
-  return console.log(style.redBright(strError));
+  return console.log(style.redBright(String(strError)));
 }
 
 export default {
@@ -300,9 +360,12 @@ export default {
   promptSelectRepositories,
   promptSelectCodespaces,
   deleteRepositories,
+  archiveRepositories,
   deleteCodespaces,
   promptConfirmDelete,
+  printConfirmArchive,
   printNoReposDeleted,
+  printNoReposArchived,
   printNoReposSelected,
   printNoCodespacesDeleted,
   printNoCodespaceSelected,

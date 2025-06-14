@@ -45,3 +45,25 @@ describe('Github.checkPermissions(authScopes, clientScopes)', () => {
     assert.equal(false, Github.checkPermissions(authScopes, clientScopes));
   });
 });
+
+describe('Github.archiveRepository()', () => {
+  it('should return true when request succeeds', async () => {
+    Github.setRequestFunc((async () => ({
+      status: 200,
+      headers: { 'x-oauth-scopes': 'delete_repo, repo, codespace' },
+    })) as any);
+
+    const result = await Github.archiveRepository('foo/bar');
+    assert.equal(true, result);
+  });
+
+  it('should return false when request fails', async () => {
+    Github.setRequestFunc((async () => ({
+      status: 400,
+      headers: { 'x-oauth-scopes': 'delete_repo, repo, codespace' },
+    })) as any);
+
+    const result = await Github.archiveRepository('foo/bar');
+    assert.equal(false, result);
+  });
+});

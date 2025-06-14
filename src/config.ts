@@ -10,7 +10,7 @@ const HOME_DIR = homedir();
 const CONFIG_DIR = getConfigDir(HOME_DIR);
 const CONFIG_FILE = path.join(CONFIG_DIR, 'auth.json');
 
-function save(token) {
+function save(token: string): boolean {
   const configuration = {
     _: `This is your ${PACKAGE.name} credentials. DO NOT SHARE!`,
     token: token,
@@ -22,7 +22,7 @@ function save(token) {
   return true;
 }
 
-function load() {
+function load(): boolean {
   const configExists = fs.existsSync(CONFIG_FILE);
 
   if (!configExists) return false;
@@ -33,15 +33,16 @@ function load() {
   return Github.setToken(token);
 }
 
-function deleteFile() {
+function deleteFile(): boolean {
   const configExists = fs.existsSync(CONFIG_FILE);
 
   if (!configExists) return false;
 
-  return fs.unlinkSync(CONFIG_FILE);
+  fs.unlinkSync(CONFIG_FILE);
+  return true;
 }
 
-function getConfigDir(homeDir) {
+function getConfigDir(homeDir: string): string {
   const platform = process.platform;
   let configDirPlatform;
 
