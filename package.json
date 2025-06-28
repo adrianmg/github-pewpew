@@ -12,6 +12,7 @@
     "src"
   ],
   "scripts": {
+    "start": "node index.js",
     "test": "mocha"
   },
   "repository": {
