@@ -30,8 +30,8 @@ function printHelp() {
 
   printHelpHeader('Commands');
   printHelpCommand('codespaces', 'Delete codespaces');
-  printHelpCommand('repos', 'Delete repositories');
-  printHelpCommand('help', '\tShow help');
+  printHelpCommand('repos [--archive]', 'Delete or optionally archive repositories');
+  printHelpCommand('help', 'Show help');
 
   console.log();
 }
@@ -50,7 +50,10 @@ function printHelpHeader(text) {
 
 function printHelpCommand(command, description) {
   const spacing = Utils.uiHelpGetSpacing();
-  console.log(`${spacing}${command}:\t${description}`);
+  const PADDING = 25;
+  const paddedCommand = `${command}:`.padEnd(PADDING, ' ');
+
+  console.log(`${spacing}${paddedCommand}${description}`);
 }
 
 async function promptAuth() {
@@ -90,12 +93,19 @@ async function promptSelectRepositories(repositories) {
     return await prompt({
       type: 'autocomplete',
       name: 'repos',
-      message: 'Select repositories you want to delete:',
+      message: 'Select repositories you want to process:',
       limit: 12,
       multiple: true,
       footer: '—————————————————————————————————————————————————',
       format: (value) => style.green(value),
-      choices: repositories.map(({ full_name }) => full_name),
+      choices: repositories.map((repo) => {
+        return {
+          name: repo.full_name,
+          message: repo.archived
+            ? `${repo.full_name} ${style.dim('(archived)')}`
+            : repo.full_name,
+        };
+      }),
     });
   } catch (error) {
     return { repos: [] };
@@ -194,9 +204,34 @@ async function deleteRepositories(repositories) {
   }
 
   if (deletedRepos.length > 0) {
-    printConfirmDelete(deletedRepos, 'repos');
+    printConfirmation(deletedRepos, 'repos', 'delete');
   } else {
     printNoReposDeleted();
+  }
+}
+
+async function archiveRepositories(repositories) {
+  const archivedRepos = [];
+
+  for (const repo of repositories) {
+    const spinner = ora().start();
+
+    try {
+      await Github.archiveRepository(repo);
+      archivedRepos.push(repo);
+
+      spinner.stopAndPersist({ symbol: '', text: style.dim(repo) });
+    } catch (error) {
+      const message = error.response?.data?.message;
+
+      spinner.fail(style.dim(`${repo} (Oops! ${message})`));
+    }
+  }
+
+  if (archivedRepos.length > 0) {
+    printConfirmation(archivedRepos, 'repos', 'archive');
+  } else {
+    printNoReposArchived();
   }
 }
 
@@ -219,47 +254,58 @@ async function deleteCodespaces(codespaces) {
   }
 
   if (deletedCodespaces.length > 0) {
-    printConfirmDelete(deletedCodespaces, 'codespaces');
+    printConfirmation(deletedCodespaces, 'codespaces', 'delete');
   } else {
     printNoCodespacesDeleted();
   }
 }
 
-async function promptConfirmDelete(count, type) {
+async function promptConfirm(count, type, action) {
+  const capitalizedAction = action.charAt(0).toUpperCase() + action.slice(1);
+
   return await prompt({
     type: 'select',
-    name: 'confirmDelete',
-    message: `Are you sure?`,
+    name: 'confirm',
+    message: 'Are you sure?',
     format: (value) => value,
     choices: [
       {
         name: 'Yes',
         message: `${style.redBright(
-          `Yes, delete ${Utils.uiGetLabel(type, count)} (${count})`
+          `Yes, ${action} ${Utils.uiGetLabel(type, count)} (${count})`
         )}`,
-        value: true,
+        value: 'Yes',
       },
       {
         name: 'Cancel',
         message: 'Cancel',
-        value: false,
+        value: 'No',
       },
     ],
   });
 }
 
-function printConfirmDelete(deletedItems, type) {
-  const count = deletedItems.length;
+function printConfirmation(processedItems, type, action) {
+  const count = processedItems.length;
 
-  const strDeletedItems = count > 1 ? deletedItems.join(', ') : deletedItems;
+  const strProcessedItems = count > 1 ? processedItems.join(', ') : processedItems[0];
   const strItems = Utils.uiGetLabel(type, count);
-  const strConfirm = `🔫 pew pew! ${count} ${strItems} deleted successfully: ${strDeletedItems}`;
+  const pastTenseAction = action === 'delete' ? 'deleted' : 'archived';
+  const strConfirm = `🔫 pew pew! ${count} ${strItems} ${pastTenseAction} successfully: ${strProcessedItems}`;
   const strRecover = `Recover repositories from github.com/settings/repositories`;
 
   console.log(strConfirm);
-  type === 'repos' && console.log(style.dim(strRecover));
+  if (type === 'repos' && action === 'delete') {
+    console.log(style.dim(strRecover));
+  }
 
   return true;
+}
+
+function printNoReposArchived() {
+  const strMessage = `Rest assured, no repositories were archived.`;
+
+  return console.log(style.dim(strMessage));
 }
 
 function printNoReposDeleted() {
@@ -300,9 +346,11 @@ export default {
   promptSelectRepositories,
   promptSelectCodespaces,
   deleteRepositories,
+  archiveRepositories,
   deleteCodespaces,
-  promptConfirmDelete,
+  promptConfirm,
   printNoReposDeleted,
+  printNoReposArchived,
   printNoReposSelected,
   printNoCodespacesDeleted,
   printNoCodespaceSelected,

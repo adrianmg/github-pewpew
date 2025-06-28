@@ -1,7 +1,7 @@
 import Config from '../config.js';
 import UI from '../ui.js';
 
-const reposCommand = async () => {
+const reposCommand = async (archive) => {
   const repositories = await UI.getRepositories();
   if (!repositories) {
     Config.deleteFile();
@@ -16,14 +16,23 @@ const reposCommand = async () => {
     return 0;
   }
 
-  const reposToDelete = res.repos;
-  const repoCount = reposToDelete.length;
-  res = await UI.promptConfirmDelete(repoCount, 'repos');
+  const reposToProcess = res.repos;
+  const repoCount = reposToProcess.length;
+  const action = archive ? 'archive' : 'delete';
+  res = await UI.promptConfirm(repoCount, 'repos', action);
 
-  if (res.confirmDelete === 'Yes') {
-    await UI.deleteRepositories(reposToDelete);
+  if (res.confirm === 'Yes') {
+    if (archive) {
+      await UI.archiveRepositories(reposToProcess);
+    } else {
+      await UI.deleteRepositories(reposToProcess);
+    }
   } else {
-    UI.printNoReposDeleted();
+    if (archive) {
+      UI.printNoReposArchived();
+    } else {
+      UI.printNoReposDeleted();
+    }
   }
 };
 
