@@ -117,7 +117,7 @@ async function apiCall(method, endpoint, page, data) {
   try {
     const res = await request(query, params);
 
-    const scopes = res.headers['x-oauth-scopes'].split(', ');
+    const scopes = (res.headers['x-oauth-scopes'] || '').split(', ');
 
     if (!checkPermissions(scopes, CLIENT_SCOPES)) throw new ScopesError();
 
@@ -151,6 +151,7 @@ export default {
   deleteRepository,
   archiveRepository,
   deleteCodespace,
+  setToken,
   AuthError,
   ScopesError,
 };
