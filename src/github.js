@@ -151,6 +151,7 @@ export default {
   deleteRepository,
   archiveRepository,
   deleteCodespace,
+  checkPermissions,
   setToken,
   AuthError,
   ScopesError,
