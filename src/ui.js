@@ -98,7 +98,14 @@ async function promptSelectRepositories(repositories) {
       multiple: true,
       footer: '—————————————————————————————————————————————————',
       format: (value) => style.green(value),
-      choices: repositories.map(({ full_name }) => full_name),
+      choices: repositories.map((repo) => {
+        return {
+          name: repo.full_name,
+          message: repo.archived
+            ? `${repo.full_name} ${style.dim('(archived)')}`
+            : repo.full_name,
+        };
+      }),
     });
   } catch (error) {
     return { repos: [] };
