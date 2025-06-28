@@ -30,9 +30,8 @@ function printHelp() {
 
   printHelpHeader('Commands');
   printHelpCommand('codespaces', 'Delete codespaces');
-  printHelpCommand('repos', 'Delete repositories');
-  printHelpCommand('repos --archive', 'Archive repositories');
-  printHelpCommand('help', '	Show help');
+  printHelpCommand('repos [--archive]', 'Delete or optionally archive repositories');
+  printHelpCommand('help', 'Show help');
 
   console.log();
 }
@@ -51,7 +50,10 @@ function printHelpHeader(text) {
 
 function printHelpCommand(command, description) {
   const spacing = Utils.uiHelpGetSpacing();
-  console.log(`${spacing}${command}:\t${description}`);
+  const PADDING = 25;
+  const paddedCommand = `${command}:`.padEnd(PADDING, ' ');
+
+  console.log(`${spacing}${paddedCommand}${description}`);
 }
 
 async function promptAuth() {
