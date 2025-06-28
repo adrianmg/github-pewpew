@@ -76,6 +76,16 @@ async function deleteRepository(repository) {
   return true;
 }
 
+async function archiveRepository(repository) {
+  const res = await apiCall('PATCH', `/repos/${repository}`, undefined, {
+    archived: true,
+  });
+
+  if (res.status !== 200) return false;
+
+  return true;
+}
+
 async function deleteCodespace(codespace) {
   const res = await apiCall('DELETE', `/user/codespaces/${codespace}`);
 
@@ -94,13 +104,14 @@ function setToken(token) {
   return (process.env.GITHUB_TOKEN = token);
 }
 
-async function apiCall(method, endpoint, page) {
+async function apiCall(method, endpoint, page, data) {
   const query = `${method} ${endpoint}`;
   const params = {
     headers: { authorization: getAuthHeader() },
-    per_page: API_PAGINATION,
     affiliation: API_AFFILIATION,
+    per_page: API_PAGINATION,
     page: page,
+    ...data,
   };
 
   try {
@@ -137,10 +148,9 @@ export default {
   auth,
   getRepositories,
   getCodespaces,
-  checkPermissions,
   deleteRepository,
+  archiveRepository,
   deleteCodespace,
-  setToken,
   AuthError,
   ScopesError,
 };

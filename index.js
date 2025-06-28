@@ -17,13 +17,14 @@ const main = async () => {
     }
 
     const command = process.argv[2];
+    const archive = process.argv.includes('--archive') || process.argv.includes('-a');
 
     switch (command) {
       case 'repos':
       case 'repo':
       case 'repository':
       case 'repositories':
-        await reposCommand();
+        await reposCommand(archive);
         break;
       case 'codespaces':
       case 'codespace':

@@ -35,6 +35,8 @@ Available commands:
 
 ```
 ghpew repos
+ghpew repos --archive
+ghpew repos -a
 ghpew codespaces
 ghpew help
 ```
@@ -82,7 +84,6 @@ All the tests are written with [mocha](https://mochajs.org/) and can be run with
 - TODO: `--force` flag to avoid confirmation
 - TODO: `--regex` flag to delete repos matching a regex
 - TODO: `--list` flag to delete repos from a comma-separated list
-- TODO: `--archive` and `-a` flag to [archive repositories](https://github.com/adrianmg/github-pewpew/issues/34) instead of deleting
 - TODO: `ghpew gists` command to [delete gists](https://github.com/adrianmg/github-pewpew/issues/36)
 
 ## Questions? Ideas? Bugs?
