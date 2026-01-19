@@ -1,0 +1,10 @@
+{
+  "repositories": [
+    { "full_name": "octo/alpha", "archived": false },
+    { "full_name": "octo/beta", "archived": true }
+  ],
+  "codespaces": [
+    { "name": "codespace-alpha" },
+    { "name": "codespace-beta" }
+  ]
+}

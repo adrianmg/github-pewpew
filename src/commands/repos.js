@@ -5,7 +5,7 @@ const reposCommand = async (archive) => {
   const repositories = await UI.getRepositories();
   if (!repositories) {
     Config.deleteFile();
-    return await main();
+    return 0;
   }
 
   let res = await UI.promptSelectRepositories(repositories);
