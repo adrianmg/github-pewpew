@@ -7,7 +7,7 @@ import Utils from './utils.js';
 
 const { package: PACKAGE, author: PACKAGE_AUTHOR } = Utils.getPackageDetails();
 const HOME_DIR = homedir();
-const CONFIG_DIR = getConfigDir(HOME_DIR);
+const CONFIG_DIR = process.env.GHPEW_CONFIG_DIR || getConfigDir(HOME_DIR);
 const CONFIG_FILE = path.join(CONFIG_DIR, 'auth.json');
 
 function save(token) {

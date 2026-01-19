@@ -11,7 +11,7 @@ function getPackageDetails() {
 }
 
 const labels = {
-  repos: { singular: 'repository', plural: 'respositories' },
+  repos: { singular: 'repository', plural: 'repositories' },
   codespaces: { singular: 'codespace', plural: 'codespaces' },
 };
 

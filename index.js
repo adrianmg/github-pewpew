@@ -1,15 +1,24 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 
-import Config from './src/config.js';
-import Github from './src/github.js';
-import UI from './src/ui.js';
+const isBunRuntime = typeof Bun !== 'undefined' || Boolean(process.versions?.bun);
 
-import reposCommand from './src/commands/repos.js';
-import codespacesCommand from './src/commands/codespaces.js';
-
-UI.printWelcome();
+if (!isBunRuntime) {
+  console.error('OpenTUI requires Bun. Please run this command with bun.');
+  process.exit(1);
+}
 
 const main = async () => {
+  const [{ default: Config }, { default: Github }, { default: UI }, { default: reposCommand }, { default: codespacesCommand }] =
+    await Promise.all([
+      import('./src/config.js'),
+      import('./src/github.js'),
+      import('./src/ui.js'),
+      import('./src/commands/repos.js'),
+      import('./src/commands/codespaces.js'),
+    ]);
+
+  UI.printWelcome();
+
   try {
     if (!Config.load()) {
       const token = await UI.promptAuth();
@@ -35,7 +44,6 @@ const main = async () => {
         break;
       default:
         if (!command) {
-          // await reposCommand();
           UI.printHelp();
           break;
         }
@@ -49,7 +57,6 @@ const main = async () => {
     }
 
     UI.printError(error);
-    return;
   }
 };
 

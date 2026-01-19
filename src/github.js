@@ -1,3 +1,5 @@
+import fs from 'fs';
+
 import { createOAuthDeviceAuth } from '@octokit/auth-oauth-device';
 import { request } from '@octokit/request';
 
@@ -8,8 +10,16 @@ const CLIENT_TYPE = 'oauth-app';
 const CLIENT_SCOPES = ['delete_repo', 'repo', 'codespace'];
 const API_PAGINATION = 100;
 const API_AFFILIATION = 'owner, collaborator';
+const FIXTURE_FILE = process.env.GHPEW_FIXTURE_FILE;
+const FIXTURES = FIXTURE_FILE ? JSON.parse(fs.readFileSync(FIXTURE_FILE, 'utf8')) : null;
 
 async function auth(onVerificationCode) {
+  if (FIXTURES) {
+    const token = process.env.GITHUB_TOKEN || 'fixture-token';
+    setToken(token);
+    return token;
+  }
+
   const auth = createOAuthDeviceAuth({
     clientType: CLIENT_TYPE,
     clientId: CLIENT_ID,
@@ -24,6 +34,10 @@ async function auth(onVerificationCode) {
 }
 
 async function getRepositories() {
+  if (FIXTURES) {
+    return FIXTURES.repositories || [];
+  }
+
   let page = 1;
   const repos = [];
 
@@ -41,6 +55,10 @@ async function getRepositories() {
 }
 
 async function getCodespaces() {
+  if (FIXTURES) {
+    return FIXTURES.codespaces || [];
+  }
+
   let page = 1;
 
   const codespaces = [];
@@ -69,6 +87,10 @@ function checkPermissions(authScopes, clientScopes) {
 }
 
 async function deleteRepository(repository) {
+  if (FIXTURES) {
+    return true;
+  }
+
   const res = await apiCall('DELETE', `/repos/${repository}`);
 
   if (res.status !== 204) return false;
@@ -77,6 +99,10 @@ async function deleteRepository(repository) {
 }
 
 async function archiveRepository(repository) {
+  if (FIXTURES) {
+    return true;
+  }
+
   const res = await apiCall('PATCH', `/repos/${repository}`, undefined, {
     archived: true,
   });
@@ -87,6 +113,10 @@ async function archiveRepository(repository) {
 }
 
 async function deleteCodespace(codespace) {
+  if (FIXTURES) {
+    return true;
+  }
+
   const res = await apiCall('DELETE', `/user/codespaces/${codespace}`);
 
   if (res.status !== 204) return false;

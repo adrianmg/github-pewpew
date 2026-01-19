@@ -73,9 +73,9 @@ The important parts of the project are the following:
 To **set up your environment** to develop this tool, run:
 
 - `npm install`
-- `node index`
+- `bun index.js`
 
-You can also run `node index DEV=true CLIENT_ID=<YOUR_TESTING_CLIENT_ID>` if you want to use your own client id for development and testing purposes.
+You can also run `DEV=true CLIENT_ID=<YOUR_TESTING_CLIENT_ID> bun index.js` if you want to use your own client id for development and testing purposes.
 
 All the tests are written with [mocha](https://mochajs.org/) and can be run with `npm test`.
 
