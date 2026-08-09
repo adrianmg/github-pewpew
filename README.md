@@ -4,7 +4,7 @@
 		<br>
 		github-pewpew
 	</h1>
-	<p align="center">Pew pew needless GitHub repos!<br>Clean up your unused repos via the CLI within seconds.</p>
+	<p align="center">Pew pew needless GitHub resources!<br>Clean up repositories, Codespaces, and gists from the CLI.</p>
 	<p align="center">
 		<a href="https://badge.fury.io/js/github-pewpew"><img src="https://badge.fury.io/js/github-pewpew.svg" alt="npm version" height="18"></a>
 		<a href="https://justforfunnoreally.dev/"><img src="https://img.shields.io/badge/justforfunnoreally-dev-9ff" alt="Just for fun. No, really." height="18"></a>
@@ -37,15 +37,34 @@ Available commands:
 ghpew repos
 ghpew repos --archive
 ghpew repos -a
+ghpew repos --force
+ghpew repos --regex '^adrianmg/demo-'
+ghpew repos --list 'adrianmg/one,adrianmg/two'
+ghpew repos --list 'adrianmg/one,adrianmg/two' --force
+ghpew gists
 ghpew codespaces
 ghpew help
 ```
 
+Repository selection is interactive by default. `--regex` uses a case-sensitive JavaScript
+regular expression against each full `owner/repository` name; pass the pattern without `/`
+delimiters. `--list` accepts exact, comma-separated `owner/repository` names and stops without
+processing anything if a name is not available. Every selection mode asks for confirmation
+unless `--force` is provided, and either filtering flag can be combined with `--archive`.
+Because `--force` processes the selection immediately, review it carefully first.
+
+Codespaces and gists use interactive multi-selection and always ask for confirmation before
+deleting anything. Gists are identified by their description or first filename, visibility,
+and unique ID. Gist deletion cannot be undone. The first run after upgrading may ask you to
+sign in again so the CLI can request permission to manage gists.
+
 ## Why?
 
-Have you ever had too much fun with the GitHub API and ended up creating too many dummy repos? Me too 😅!
+Have you ever had too much fun with GitHub and ended up creating too many throwaway
+repositories, Codespaces, or gists? Me too 😅!
 
-I made this little CLI tool to clean up repositories quickly. I'm planning to add some flags and regexp to delete in bulk in the future. [Let me know](http://twitter.com/adrianmg) if that sounds interesting to you.
+I made this little CLI tool to clean up GitHub clutter quickly. [Let me
+know](http://twitter.com/adrianmg) what you think.
 
 Do you want to know more? [Visit the official website](https://adrianmato.com/pewpew).
 
@@ -58,13 +77,15 @@ The important parts of the project are the following:
 ├── src
 │   ├── commands
 │   │   ├── codespaces.js  Contains the command to delete codespaces
-│   │   └── repos.js       Contains the command to delete repos
+│   │   ├── gists.js       Contains the command to delete gists
+│   │   └── repos.js       Contains the command to process repositories
 │   ├── config.js          Contains the configuration manager
 │   ├── github.js          Business logic: authentication and API calls
+│   ├── repo-options.js    Parses and resolves repository selection options
 │   ├── ui.js              CLI interactions
 │   └── utils.js           Lightweight utility functions
 ├── test
-│   └── test.js            Test coverage with Mocha
+│   └── test.js            Test coverage with the Node.js test runner
 ├── .prettierrc            Code formatting configuration
 ├── index.js               The main thread of execution
 ├── README.md              you're looking at it
@@ -72,19 +93,13 @@ The important parts of the project are the following:
 
 To **set up your environment** to develop this tool, run:
 
+- Install Node.js 20 or newer
 - `npm install`
 - `node index`
 
 You can also run `node index DEV=true CLIENT_ID=<YOUR_TESTING_CLIENT_ID>` if you want to use your own client id for development and testing purposes.
 
-All the tests are written with [mocha](https://mochajs.org/) and can be run with `npm test`.
-
-## TODO
-
-- TODO: `--force` flag to avoid confirmation
-- TODO: `--regex` flag to delete repos matching a regex
-- TODO: `--list` flag to delete repos from a comma-separated list
-- TODO: `ghpew gists` command to [delete gists](https://github.com/adrianmg/github-pewpew/issues/36)
+The tests use the built-in Node.js test runner and can be run with `npm test`.
 
 ## Questions? Ideas? Bugs?
 

@@ -18,9 +18,9 @@ const codespacesCommand = async () => {
 
   const codespacesToDelete = res.codespaces;
   const codespaceCount = codespacesToDelete.length;
-  res = await UI.promptConfirmDelete(codespaceCount, 'codespaces');
+  res = await UI.promptConfirm(codespaceCount, 'codespaces', 'delete');
 
-  if (res.confirmDelete === 'Yes') {
+  if (res.confirm === 'Yes') {
     await UI.deleteCodespaces(codespacesToDelete);
   } else {
     UI.printNoCodespacesDeleted();
