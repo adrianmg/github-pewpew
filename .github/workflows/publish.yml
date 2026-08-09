@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      id-token: write
     environment:
       name: "production"
       url: "https://www.npmjs.com/package/github-pewpew"
@@ -23,17 +24,16 @@ jobs:
       - run: npm ci
       # Run tests
       - run: npm test
+      - name: Verify npm OIDC support
+        run: |
+          NPM_VERSION=$(npm --version)
+          node -e "const [major, minor] = '$NPM_VERSION'.split('.').map(Number); process.exit(major > 11 || (major === 11 && minor >= 5) ? 0 : 1)"
       # Release tags must match the package version exactly.
       - name: Verify release version
         if: github.event_name == 'release'
         run: |
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
           test "$GITHUB_REF_NAME" = "v$PACKAGE_VERSION"
-      # Confirm the configured npm credential can publish this package.
-      - name: Verify npm authentication
-        run: npm whoami
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       # Manual runs validate the complete package without publishing it.
       - name: Validate package publication
         if: github.event_name == 'workflow_dispatch'
@@ -42,5 +42,3 @@ jobs:
       - name: Publish package
         if: github.event_name == 'release'
         run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
