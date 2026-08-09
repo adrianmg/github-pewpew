@@ -5,7 +5,13 @@ const CLIENT_ID_PROD = 'ed7c193c5b64ee06192a';
 
 const CLIENT_ID = process.env.DEV ? process.env.CLIENT_ID : CLIENT_ID_PROD;
 const CLIENT_TYPE = 'oauth-app';
-const CLIENT_SCOPES = ['delete_repo', 'repo', 'codespace'];
+const RESOURCE_SCOPES = {
+  repositories: ['repo'],
+  deleteRepository: ['delete_repo'],
+  codespaces: ['codespace'],
+  gists: ['gist'],
+};
+const CLIENT_SCOPES = [...new Set(Object.values(RESOURCE_SCOPES).flat())];
 const API_PAGINATION = 100;
 const API_AFFILIATION = 'owner, collaborator';
 
@@ -28,7 +34,13 @@ async function getRepositories() {
   const repos = [];
 
   while (true) {
-    const res = await apiCall('GET', '/user/repos', page);
+    const res = await apiCall(
+      'GET',
+      '/user/repos',
+      page,
+      { affiliation: API_AFFILIATION },
+      RESOURCE_SCOPES.repositories
+    );
     const reposCurrentPage = res.data;
 
     if (reposCurrentPage.length === 0) break;
@@ -46,7 +58,13 @@ async function getCodespaces() {
   const codespaces = [];
 
   while (true) {
-    const res = await apiCall('GET', '/user/codespaces', page);
+    const res = await apiCall(
+      'GET',
+      '/user/codespaces',
+      page,
+      undefined,
+      RESOURCE_SCOPES.codespaces
+    );
     const codespacesCurrentPage = res.data.codespaces;
 
     if (codespacesCurrentPage.length === 0) break;
@@ -56,6 +74,23 @@ async function getCodespaces() {
   }
 
   return codespaces;
+}
+
+async function getGists() {
+  let page = 1;
+  const gists = [];
+
+  while (true) {
+    const res = await apiCall('GET', '/gists', page, undefined, RESOURCE_SCOPES.gists);
+    const gistsCurrentPage = res.data;
+
+    if (gistsCurrentPage.length === 0) break;
+
+    gists.push(...gistsCurrentPage);
+    page++;
+  }
+
+  return gists;
 }
 
 function checkPermissions(authScopes, clientScopes) {
@@ -69,7 +104,13 @@ function checkPermissions(authScopes, clientScopes) {
 }
 
 async function deleteRepository(repository) {
-  const res = await apiCall('DELETE', `/repos/${repository}`);
+  const res = await apiCall(
+    'DELETE',
+    `/repos/${repository}`,
+    undefined,
+    undefined,
+    RESOURCE_SCOPES.deleteRepository
+  );
 
   if (res.status !== 204) return false;
 
@@ -77,9 +118,13 @@ async function deleteRepository(repository) {
 }
 
 async function archiveRepository(repository) {
-  const res = await apiCall('PATCH', `/repos/${repository}`, undefined, {
-    archived: true,
-  });
+  const res = await apiCall(
+    'PATCH',
+    `/repos/${repository}`,
+    undefined,
+    { archived: true },
+    RESOURCE_SCOPES.repositories
+  );
 
   if (res.status !== 200) return false;
 
@@ -87,7 +132,27 @@ async function archiveRepository(repository) {
 }
 
 async function deleteCodespace(codespace) {
-  const res = await apiCall('DELETE', `/user/codespaces/${codespace}`);
+  const res = await apiCall(
+    'DELETE',
+    `/user/codespaces/${codespace}`,
+    undefined,
+    undefined,
+    RESOURCE_SCOPES.codespaces
+  );
+
+  if (res.status !== 204) return false;
+
+  return true;
+}
+
+async function deleteGist(gist) {
+  const res = await apiCall(
+    'DELETE',
+    `/gists/${gist}`,
+    undefined,
+    undefined,
+    RESOURCE_SCOPES.gists
+  );
 
   if (res.status !== 204) return false;
 
@@ -104,29 +169,43 @@ function setToken(token) {
   return (process.env.GITHUB_TOKEN = token);
 }
 
-async function apiCall(method, endpoint, page, data) {
+async function apiCall(method, endpoint, page, data, requiredScopes = []) {
   const query = `${method} ${endpoint}`;
   const params = {
     headers: { authorization: getAuthHeader() },
-    affiliation: API_AFFILIATION,
-    per_page: API_PAGINATION,
-    page: page,
     ...data,
   };
+
+  if (page !== undefined) {
+    params.per_page = API_PAGINATION;
+    params.page = page;
+  }
 
   try {
     const res = await request(query, params);
 
-    const scopes = (res.headers['x-oauth-scopes'] || '').split(', ');
+    const scopes = parseScopes(res.headers) || [];
 
-    if (!checkPermissions(scopes, CLIENT_SCOPES)) throw new ScopesError();
+    if (!checkPermissions(scopes, requiredScopes)) throw new ScopesError();
 
     return res;
   } catch (error) {
     if (error.status === 401) throw new AuthError();
 
+    const scopes = parseScopes(error.response?.headers);
+    if (scopes && !checkPermissions(scopes, requiredScopes)) {
+      throw new ScopesError();
+    }
+
     throw error;
   }
+}
+
+function parseScopes(headers) {
+  const scopes = headers?.['x-oauth-scopes'];
+  if (scopes === undefined) return undefined;
+
+  return scopes.split(', ').filter(Boolean);
 }
 
 class AuthError extends Error {
@@ -140,7 +219,7 @@ class AuthError extends Error {
 class ScopesError extends Error {
   constructor(message) {
     super(message);
-    this.message = message || 'Client and token scopes missmatch';
+    this.message = message || 'Client and token scopes mismatch';
   }
 }
 
@@ -148,9 +227,11 @@ export default {
   auth,
   getRepositories,
   getCodespaces,
+  getGists,
   deleteRepository,
   archiveRepository,
   deleteCodespace,
+  deleteGist,
   checkPermissions,
   setToken,
   AuthError,

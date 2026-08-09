@@ -30,8 +30,17 @@ function printHelp() {
 
   printHelpHeader('Commands');
   printHelpCommand('codespaces', 'Delete codespaces');
-  printHelpCommand('repos [--archive]', 'Delete or optionally archive repositories');
+  printHelpCommand('gists', 'Delete gists');
+  printHelpCommand('repos [options]', 'Delete or archive repositories');
   printHelpCommand('help', 'Show help');
+
+  console.log();
+
+  printHelpHeader('Repository options');
+  printHelpCommand('--archive, -a', 'Archive instead of delete');
+  printHelpCommand('--force', 'Skip the final confirmation');
+  printHelpCommand('--regex <pattern>', 'Select matching owner/repository names');
+  printHelpCommand('--list <repos>', 'Select comma-separated owner/repository names');
 
   console.log();
 }
@@ -131,6 +140,43 @@ async function promptSelectCodespaces(codespaces) {
   }
 }
 
+async function promptSelectGists(gists) {
+  try {
+    if (gists.length === 0) return { gists: [] };
+
+    return await prompt({
+      type: 'autocomplete',
+      name: 'gists',
+      message: 'Select gists you want to delete:',
+      limit: 12,
+      multiple: true,
+      footer: '—————————————————————————————————————————————————',
+      format: (value) => style.green(value),
+      choices: gists.map((gist) => {
+        return {
+          name: gist.id,
+          message: formatGist(gist),
+        };
+      }),
+    });
+  } catch (error) {
+    return { gists: [] };
+  }
+}
+
+function formatGist(gist) {
+  const filenames = Object.keys(gist.files || {});
+  const title = gist.description || filenames[0] || 'Untitled gist';
+  const safeTitle =
+    String(title)
+      .replace(/[\u0000-\u001f\u007f]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim() || 'Untitled gist';
+  const visibility = gist.public ? 'public' : 'secret';
+
+  return `${safeTitle} ${style.dim(`(${visibility}, ${gist.id})`)}`;
+}
+
 async function getRepositories() {
   const strMessage = `Fetching repositories…`;
   const spinner = ora(strMessage).start();
@@ -173,6 +219,24 @@ async function getCodespaces() {
   }
 }
 
+async function getGists() {
+  const strMessage = `Fetching gists…`;
+  const spinner = ora(strMessage).start();
+
+  try {
+    const gists = await Github.getGists();
+
+    const count = gists.length;
+    const strSucceed = printGistsFound(count);
+    spinner.succeed(style.dim(strSucceed));
+
+    return gists;
+  } catch (error) {
+    spinner.stop();
+    throw error;
+  }
+}
+
 function printReposFound(count) {
   const strMessage = `${count} ${count > 1 ? 'repositories' : 'repository'} found.`;
 
@@ -183,6 +247,10 @@ function printCodespacesFound(count) {
   const strMessage = `${count} ${count > 1 ? 'codespaces' : 'codespace'} found.`;
 
   return strMessage;
+}
+
+function printGistsFound(count) {
+  return `${count} ${count === 1 ? 'gist' : 'gists'} found.`;
 }
 
 async function deleteRepositories(repositories) {
@@ -260,6 +328,31 @@ async function deleteCodespaces(codespaces) {
   }
 }
 
+async function deleteGists(gists) {
+  const deletedGists = [];
+
+  for (const gist of gists) {
+    const spinner = ora().start();
+
+    try {
+      await Github.deleteGist(gist);
+      deletedGists.push(gist);
+
+      spinner.stopAndPersist({ symbol: '', text: style.strikethrough.dim(gist) });
+    } catch (error) {
+      const message = error.response?.data?.message || error.message;
+
+      spinner.fail(style.dim(`${gist} (Oops! ${message})`));
+    }
+  }
+
+  if (deletedGists.length > 0) {
+    printConfirmation(deletedGists, 'gists', 'delete');
+  } else {
+    printNoGistsDeleted();
+  }
+}
+
 async function promptConfirm(count, type, action) {
   const capitalizedAction = action.charAt(0).toUpperCase() + action.slice(1);
 
@@ -320,16 +413,37 @@ function printNoCodespacesDeleted() {
   return console.log(style.dim(strMessage));
 }
 
+function printNoGistsDeleted() {
+  return console.log(style.dim('Rest assured, no gists were deleted.'));
+}
+
 function printNoReposSelected() {
   const strMessage = `No repositories selected. (Press 'space' to select)`;
 
   return console.log(style.dim(strMessage));
 }
 
+function printReposMatched(repositories) {
+  const label = repositories.length === 1 ? 'repository' : 'repositories';
+  console.log(style.dim(`Matched ${repositories.length} ${label}:`));
+  for (const repository of repositories) {
+    console.log(`  ${repository}`);
+  }
+  console.log();
+}
+
+function printNoReposMatched() {
+  return console.log(style.dim('No repositories matched.'));
+}
+
 function printNoCodespaceSelected() {
   const strMessage = `No codespaces selected. (Press 'space' to select)`;
 
   return console.log(style.dim(strMessage));
+}
+
+function printNoGistSelected() {
+  return console.log(style.dim("No gists selected. (Press 'space' to select)"));
 }
 
 function printError(strError) {
@@ -343,16 +457,23 @@ export default {
   promptAuth,
   getRepositories,
   getCodespaces,
+  getGists,
   promptSelectRepositories,
   promptSelectCodespaces,
+  promptSelectGists,
   deleteRepositories,
   archiveRepositories,
   deleteCodespaces,
+  deleteGists,
   promptConfirm,
   printNoReposDeleted,
   printNoReposArchived,
   printNoReposSelected,
+  printReposMatched,
+  printNoReposMatched,
   printNoCodespacesDeleted,
   printNoCodespaceSelected,
+  printNoGistsDeleted,
+  printNoGistSelected,
   printError,
 };

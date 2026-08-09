@@ -2,10 +2,12 @@
 
 import Config from './src/config.js';
 import Github from './src/github.js';
+import RepoOptions from './src/repo-options.js';
 import UI from './src/ui.js';
 
 import reposCommand from './src/commands/repos.js';
 import codespacesCommand from './src/commands/codespaces.js';
+import gistsCommand from './src/commands/gists.js';
 
 UI.printWelcome();
 
@@ -17,18 +19,20 @@ const main = async () => {
     }
 
     const command = process.argv[2];
-    const archive = process.argv.includes('--archive') || process.argv.includes('-a');
-
     switch (command) {
       case 'repos':
       case 'repo':
       case 'repository':
       case 'repositories':
-        await reposCommand(archive);
+        await reposCommand(RepoOptions.parse(process.argv.slice(3)));
         break;
       case 'codespaces':
       case 'codespace':
         await codespacesCommand();
+        break;
+      case 'gists':
+      case 'gist':
+        await gistsCommand();
         break;
       case 'help':
         UI.printHelp();
@@ -49,6 +53,7 @@ const main = async () => {
     }
 
     UI.printError(error);
+    process.exitCode = 1;
     return;
   }
 };

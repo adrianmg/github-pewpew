@@ -7,18 +7,18 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
     environment:
       name: "production"
       url: "https://www.npmjs.com/package/github-pewpew"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v7
       # Setup .npmrc file to publish to npm
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v7
         with:
-          node-version: '14'
+          node-version: "24.x"
+          cache: npm
           registry-url: 'https://registry.npmjs.org'
-      - run: npm install
+      - run: npm ci
       # Run tests
       - run: npm test
       # Publish to npm
