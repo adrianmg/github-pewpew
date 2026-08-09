@@ -56,6 +56,28 @@ describe('runtime dependencies', () => {
     assert.equal(typeof Github.getGists, 'function');
     assert.equal(typeof Github.deleteGist, 'function');
   });
+
+  it('should list commands in the preferred order', () => {
+    const output = [];
+    const originalLog = console.log;
+    console.log = (...args) => output.push(args.join(' '));
+
+    try {
+      UI.printHelp();
+    } finally {
+      console.log = originalLog;
+    }
+
+    const help = output.join('\n');
+    const commandIndexes = [
+      help.indexOf('repos [options]'),
+      help.indexOf('gists'),
+      help.indexOf('codespaces'),
+      help.indexOf('help'),
+    ];
+
+    assert.deepEqual(commandIndexes, [...commandIndexes].sort((a, b) => a - b));
+  });
 });
 
 describe('RepoOptions.parse(args)', () => {

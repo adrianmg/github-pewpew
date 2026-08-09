@@ -41,8 +41,8 @@ ghpew repos --force
 ghpew repos --regex '^adrianmg/demo-'
 ghpew repos --list 'adrianmg/one,adrianmg/two'
 ghpew repos --list 'adrianmg/one,adrianmg/two' --force
-ghpew codespaces
 ghpew gists
+ghpew codespaces
 ghpew help
 ```
 

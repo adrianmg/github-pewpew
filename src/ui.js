@@ -29,9 +29,9 @@ function printHelp() {
   console.log();
 
   printHelpHeader('Commands');
-  printHelpCommand('codespaces', 'Delete codespaces');
-  printHelpCommand('gists', 'Delete gists');
   printHelpCommand('repos [options]', 'Delete or archive repositories');
+  printHelpCommand('gists', 'Delete gists');
+  printHelpCommand('codespaces', 'Delete codespaces');
   printHelpCommand('help', 'Show help');
 
   console.log();
