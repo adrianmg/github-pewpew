@@ -1,6 +1,6 @@
 {
   "name": "github-pewpew",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "Clean up unnecessary GitHub repositories, Codespaces, and gists. Pew pew!",
   "main": "index.js",
   "type": "module",
@@ -37,7 +37,7 @@
   "bugs": {
     "url": "https://github.com/adrianmg/github-pewpew/issues"
   },
-  "homepage": "https://github.com/adrianmg/github-pewpew",
+  "homepage": "https://adrianmato.com/pewpew",
   "dependencies": {
     "@octokit/auth-oauth-device": "^8.0.4",
     "@octokit/request": "^10.0.13",
