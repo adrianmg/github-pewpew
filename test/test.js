@@ -2,6 +2,7 @@ import assert from 'assert';
 import { describe, it } from 'node:test';
 
 import codespacesCommand from '../src/commands/codespaces.js';
+import CommandSummary from '../src/command-summary.js';
 import gistsCommand from '../src/commands/gists.js';
 import Github from '../src/github.js';
 import reposCommand from '../src/commands/repos.js';
@@ -16,9 +17,25 @@ async function withUiStubs(stubs, callback) {
   Object.assign(UI, stubs);
 
   try {
-    await callback();
+    return await callback();
   } finally {
     Object.assign(UI, originalFunctions);
+  }
+}
+
+async function withGithubStubs(stubs, callback) {
+  const originalFunctions = Object.fromEntries(
+    Object.keys(stubs).map((name) => [name, Github[name]])
+  );
+  const originalLog = console.log;
+  Object.assign(Github, stubs);
+  console.log = () => {};
+
+  try {
+    return await callback();
+  } finally {
+    console.log = originalLog;
+    Object.assign(Github, originalFunctions);
   }
 }
 
@@ -29,7 +46,7 @@ async function withMockGithubFetch(fetchMock, callback) {
   Github.setToken('test-token');
 
   try {
-    await callback();
+    return await callback();
   } finally {
     globalThis.fetch = originalFetch;
     if (originalToken === undefined) {
@@ -233,6 +250,41 @@ describe('reposCommand(options)', () => {
 
     assert.equal(reportedNoMatches, true);
   });
+
+  it('should propagate repository listing failures without processing repositories', async () => {
+    const listingError = new Error('Internal Server Error');
+    const options = RepoOptions.parse(['--list', 'adrianmg/demo-one', '--force']);
+
+    await withUiStubs(
+      {
+        getRepositories: async () => {
+          throw listingError;
+        },
+        promptSelectRepositories: async () =>
+          assert.fail('repositories should not be selected'),
+        deleteRepositories: async () => assert.fail('repositories should not be deleted'),
+      },
+      async () => {
+        await assert.rejects(reposCommand(options), (error) => error === listingError);
+      }
+    );
+  });
+
+  it('should return the deletion summary reported by the UI', async () => {
+    const summary = { processed: ['adrianmg/demo-two'], failed: [] };
+    const options = RepoOptions.parse(['--list', 'adrianmg/demo-two', '--force']);
+
+    const result = await withUiStubs(
+      {
+        getRepositories: async () => repositories,
+        printReposMatched: () => {},
+        deleteRepositories: async () => summary,
+      },
+      async () => reposCommand(options)
+    );
+
+    assert.deepEqual(result, summary);
+  });
 });
 
 describe('gistsCommand()', () => {
@@ -325,6 +377,128 @@ describe('codespacesCommand()', () => {
     assert.deepEqual(confirmation, [1, 'codespaces', 'delete']);
     assert.deepEqual(deletedCodespaces, ['codespace-one']);
   });
+
+  it('should propagate codespace listing failures', async () => {
+    const listingError = new Error('Network request failed');
+
+    await withUiStubs(
+      {
+        getCodespaces: async () => {
+          throw listingError;
+        },
+        promptSelectCodespaces: async () =>
+          assert.fail('codespaces should not be selected'),
+        deleteCodespaces: async () => assert.fail('codespaces should not be deleted'),
+      },
+      async () => {
+        await assert.rejects(codespacesCommand(), (error) => error === listingError);
+      }
+    );
+  });
+
+  it('should return the deletion summary reported by the UI', async () => {
+    const summary = { processed: [], failed: ['codespace-one'] };
+
+    const result = await withUiStubs(
+      {
+        getCodespaces: async () => [{ name: 'codespace-one' }],
+        promptSelectCodespaces: async () => ({ codespaces: ['codespace-one'] }),
+        promptConfirm: async () => ({ confirm: 'Yes' }),
+        deleteCodespaces: async () => summary,
+      },
+      codespacesCommand
+    );
+
+    assert.deepEqual(result, summary);
+  });
+});
+
+describe('UI mutation batches', () => {
+  it('should report a failed repository and keep processing the batch', async () => {
+    const attempts = [];
+    const failure = new Error('Request failed');
+    failure.response = { data: { message: 'Must have admin rights' } };
+
+    const summary = await withGithubStubs(
+      {
+        deleteRepository: async (repository) => {
+          attempts.push(repository);
+          if (repository === 'adrianmg/demo-two') throw failure;
+
+          return true;
+        },
+      },
+      async () =>
+        UI.deleteRepositories([
+          'adrianmg/demo-one',
+          'adrianmg/demo-two',
+          'adrianmg/demo-three',
+        ])
+    );
+
+    assert.deepEqual(attempts, [
+      'adrianmg/demo-one',
+      'adrianmg/demo-two',
+      'adrianmg/demo-three',
+    ]);
+    assert.deepEqual(summary.processed, ['adrianmg/demo-one', 'adrianmg/demo-three']);
+    assert.deepEqual(summary.failed, ['adrianmg/demo-two']);
+    assert.equal(summary.authError, undefined);
+  });
+
+  it('should abort the batch on a token-wide failure without throwing', async () => {
+    const attempts = [];
+    const scopesError = new Github.ScopesError();
+
+    const summary = await withGithubStubs(
+      {
+        deleteCodespace: async (codespace) => {
+          attempts.push(codespace);
+          if (codespace === 'codespace-two') throw scopesError;
+
+          return true;
+        },
+      },
+      async () =>
+        UI.deleteCodespaces(['codespace-one', 'codespace-two', 'codespace-three'])
+    );
+
+    assert.deepEqual(attempts, ['codespace-one', 'codespace-two']);
+    assert.deepEqual(summary.processed, ['codespace-one']);
+    assert.deepEqual(summary.failed, ['codespace-two']);
+    assert.equal(summary.authError, scopesError);
+  });
+});
+
+describe('CommandSummary.resolveOutcome(summary)', () => {
+  it('should keep a successful exit status and cached credentials', () => {
+    assert.deepEqual(CommandSummary.resolveOutcome(CommandSummary.create()), {
+      invalidateConfig: false,
+      exitCode: 0,
+    });
+    assert.deepEqual(CommandSummary.resolveOutcome(undefined), {
+      invalidateConfig: false,
+      exitCode: 0,
+    });
+  });
+
+  it('should fail the process when any mutation failed', () => {
+    assert.deepEqual(
+      CommandSummary.resolveOutcome({ processed: ['one'], failed: ['two'] }),
+      { invalidateConfig: false, exitCode: 1 }
+    );
+  });
+
+  it('should invalidate cached credentials after a token-wide failure', () => {
+    assert.deepEqual(
+      CommandSummary.resolveOutcome({
+        processed: [],
+        failed: ['one'],
+        authError: new Github.AuthError(),
+      }),
+      { invalidateConfig: true, exitCode: 1 }
+    );
+  });
 });
 
 describe('Utils.uiGetLabel(type, count)', () => {
@@ -413,6 +587,56 @@ describe('Github gist API', () => {
         githubResponse([], 200, 'delete_repo, repo, codespace'),
       async () => {
         await assert.rejects(Github.getGists(), Github.ScopesError);
+      }
+    );
+  });
+});
+
+describe('Github mutation requests', () => {
+  it('should accept the accepted status returned by codespace deletion', async () => {
+    let request;
+
+    await withMockGithubFetch(
+      async (url, options) => {
+        request = { url: new URL(url), method: options.method };
+        return githubResponse({}, 202);
+      },
+      async () => {
+        assert.equal(await Github.deleteCodespace('codespace-one'), true);
+      }
+    );
+
+    assert.equal(request.method, 'DELETE');
+    assert.equal(request.url.pathname, '/user/codespaces/codespace-one');
+  });
+
+  it('should map an unauthorized response to an authentication error', async () => {
+    await withMockGithubFetch(
+      async () => githubResponse({ message: 'Bad credentials' }, 401),
+      async () => {
+        await assert.rejects(
+          Github.deleteRepository('adrianmg/example'),
+          Github.AuthError
+        );
+      }
+    );
+  });
+
+  it('should preserve a generic error when the request never reaches GitHub', async () => {
+    const networkError = new TypeError('fetch failed');
+
+    await withMockGithubFetch(
+      async () => {
+        throw networkError;
+      },
+      async () => {
+        await assert.rejects(Github.deleteRepository('adrianmg/example'), (error) => {
+          assert.equal(error instanceof Github.AuthError, false);
+          assert.equal(error instanceof Github.ScopesError, false);
+          assert.match(error.message, /fetch failed/);
+
+          return true;
+        });
       }
     );
   });
