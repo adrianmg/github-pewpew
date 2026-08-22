@@ -640,6 +640,15 @@ describe('Github mutation requests', () => {
       }
     );
   });
+
+  it('should accept a successful DELETE response with status 204 and no x-oauth-scopes header', async () => {
+    await withMockGithubFetch(
+      async () => new Response(null, { status: 204 }),
+      async () => {
+        assert.equal(await Github.deleteRepository('adrianmg/example'), true);
+      }
+    );
+  });
 });
 
 describe('Github endpoint permissions', () => {

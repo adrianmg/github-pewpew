@@ -170,9 +170,9 @@ async function apiCall(method, endpoint, page, data, requiredScopes = []) {
   try {
     const res = await request(query, params);
 
-    const scopes = parseScopes(res.headers) || [];
+    const scopes = parseScopes(res.headers);
 
-    if (!checkPermissions(scopes, requiredScopes)) throw new ScopesError();
+    if (scopes && !checkPermissions(scopes, requiredScopes)) throw new ScopesError();
 
     return res;
   } catch (error) {
