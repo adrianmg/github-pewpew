@@ -104,7 +104,7 @@ function checkPermissions(authScopes, clientScopes) {
 }
 
 async function deleteRepository(repository) {
-  const res = await apiCall(
+  await apiCall(
     'DELETE',
     `/repos/${repository}`,
     undefined,
@@ -112,13 +112,11 @@ async function deleteRepository(repository) {
     RESOURCE_SCOPES.deleteRepository
   );
 
-  if (res.status !== 204) return false;
-
   return true;
 }
 
 async function archiveRepository(repository) {
-  const res = await apiCall(
+  await apiCall(
     'PATCH',
     `/repos/${repository}`,
     undefined,
@@ -126,13 +124,11 @@ async function archiveRepository(repository) {
     RESOURCE_SCOPES.repositories
   );
 
-  if (res.status !== 200) return false;
-
   return true;
 }
 
 async function deleteCodespace(codespace) {
-  const res = await apiCall(
+  await apiCall(
     'DELETE',
     `/user/codespaces/${codespace}`,
     undefined,
@@ -140,21 +136,11 @@ async function deleteCodespace(codespace) {
     RESOURCE_SCOPES.codespaces
   );
 
-  if (res.status !== 204) return false;
-
   return true;
 }
 
 async function deleteGist(gist) {
-  const res = await apiCall(
-    'DELETE',
-    `/gists/${gist}`,
-    undefined,
-    undefined,
-    RESOURCE_SCOPES.gists
-  );
-
-  if (res.status !== 204) return false;
+  await apiCall('DELETE', `/gists/${gist}`, undefined, undefined, RESOURCE_SCOPES.gists);
 
   return true;
 }
@@ -184,9 +170,9 @@ async function apiCall(method, endpoint, page, data, requiredScopes = []) {
   try {
     const res = await request(query, params);
 
-    const scopes = parseScopes(res.headers) || [];
+    const scopes = parseScopes(res.headers);
 
-    if (!checkPermissions(scopes, requiredScopes)) throw new ScopesError();
+    if (scopes && !checkPermissions(scopes, requiredScopes)) throw new ScopesError();
 
     return res;
   } catch (error) {

@@ -1,14 +1,10 @@
-import Config from '../config.js';
+import CommandSummary from '../command-summary.js';
 import RepoOptions from '../repo-options.js';
 import UI from '../ui.js';
 
 const reposCommand = async (options = {}) => {
   const { archive = false, force = false } = options;
   const repositories = await UI.getRepositories();
-  if (!repositories) {
-    Config.deleteFile();
-    return await main();
-  }
 
   let reposToProcess = RepoOptions.selectRepositories(repositories, options);
 
@@ -25,7 +21,7 @@ const reposCommand = async (options = {}) => {
     } else {
       UI.printNoReposSelected();
     }
-    return 0;
+    return CommandSummary.create();
   }
 
   const repoCount = reposToProcess.length;
@@ -40,15 +36,15 @@ const reposCommand = async (options = {}) => {
       } else {
         UI.printNoReposDeleted();
       }
-      return 0;
+      return CommandSummary.create();
     }
   }
 
   if (archive) {
-    await UI.archiveRepositories(reposToProcess);
-  } else {
-    await UI.deleteRepositories(reposToProcess);
+    return await UI.archiveRepositories(reposToProcess);
   }
+
+  return await UI.deleteRepositories(reposToProcess);
 };
 
 export default reposCommand;

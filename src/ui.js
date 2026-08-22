@@ -191,10 +191,7 @@ async function getRepositories() {
     return repositories;
   } catch (error) {
     spinner.stop();
-
-    if (error instanceof Github.AuthError || error instanceof Github.ScopesError) {
-      throw error;
-    }
+    throw error;
   }
 }
 
@@ -212,10 +209,7 @@ async function getCodespaces() {
     return codespaces;
   } catch (error) {
     spinner.stop();
-
-    if (error instanceof Github.AuthError || error instanceof Github.ScopesError) {
-      throw error;
-    }
+    throw error;
   }
 }
 
@@ -253,104 +247,104 @@ function printGistsFound(count) {
   return `${count} ${count === 1 ? 'gist' : 'gists'} found.`;
 }
 
-async function deleteRepositories(repositories) {
-  const deletedRepos = [];
+function isTokenError(error) {
+  return error instanceof Github.AuthError || error instanceof Github.ScopesError;
+}
 
-  for (const repo of repositories) {
+function getErrorMessage(error) {
+  return error.response?.data?.message || error.message;
+}
+
+async function processItems(items, mutate, formatProcessed) {
+  const processed = [];
+  const failed = [];
+  let authError;
+
+  for (const item of items) {
     const spinner = ora().start();
 
     try {
-      await Github.deleteRepository(repo);
-      deletedRepos.push(repo);
+      await mutate(item);
+      processed.push(item);
 
-      spinner.stopAndPersist({ symbol: '', text: style.strikethrough.dim(repo) });
+      spinner.stopAndPersist({ symbol: '', text: formatProcessed(item) });
     } catch (error) {
-      const message = error.response?.data?.message;
+      failed.push(item);
 
-      spinner.fail(style.dim(`${repo} (Oops! ${message})`));
+      spinner.fail(style.dim(`${item} (Oops! ${getErrorMessage(error)})`));
+
+      if (isTokenError(error)) {
+        authError = error;
+        break;
+      }
     }
   }
 
-  if (deletedRepos.length > 0) {
-    printConfirmation(deletedRepos, 'repos', 'delete');
+  return { processed, failed, authError };
+}
+
+async function deleteRepositories(repositories) {
+  const summary = await processItems(
+    repositories,
+    (repo) => Github.deleteRepository(repo),
+    (repo) => style.strikethrough.dim(repo)
+  );
+
+  if (summary.processed.length > 0) {
+    printConfirmation(summary.processed, 'repos', 'delete');
   } else {
     printNoReposDeleted();
   }
+
+  return summary;
 }
 
 async function archiveRepositories(repositories) {
-  const archivedRepos = [];
+  const summary = await processItems(
+    repositories,
+    (repo) => Github.archiveRepository(repo),
+    (repo) => style.dim(repo)
+  );
 
-  for (const repo of repositories) {
-    const spinner = ora().start();
-
-    try {
-      await Github.archiveRepository(repo);
-      archivedRepos.push(repo);
-
-      spinner.stopAndPersist({ symbol: '', text: style.dim(repo) });
-    } catch (error) {
-      const message = error.response?.data?.message;
-
-      spinner.fail(style.dim(`${repo} (Oops! ${message})`));
-    }
-  }
-
-  if (archivedRepos.length > 0) {
-    printConfirmation(archivedRepos, 'repos', 'archive');
+  if (summary.processed.length > 0) {
+    printConfirmation(summary.processed, 'repos', 'archive');
   } else {
     printNoReposArchived();
   }
+
+  return summary;
 }
 
 async function deleteCodespaces(codespaces) {
-  const deletedCodespaces = [];
+  const summary = await processItems(
+    codespaces,
+    (codespace) => Github.deleteCodespace(codespace),
+    (codespace) => style.strikethrough.dim(codespace)
+  );
 
-  for (const codespace of codespaces) {
-    const spinner = ora().start();
-
-    try {
-      await Github.deleteCodespace(codespace);
-      deletedCodespaces.push(codespace);
-
-      spinner.stopAndPersist({ symbol: '', text: style.strikethrough.dim(codespace) });
-    } catch (error) {
-      const message = error.response?.data?.message;
-
-      spinner.fail(style.dim(`${codespace} (Oops! ${message})`));
-    }
-  }
-
-  if (deletedCodespaces.length > 0) {
-    printConfirmation(deletedCodespaces, 'codespaces', 'delete');
+  if (summary.processed.length > 0) {
+    printConfirmation(summary.processed, 'codespaces', 'delete');
   } else {
     printNoCodespacesDeleted();
   }
+
+  return summary;
 }
 
 async function deleteGists(gists) {
-  const deletedGists = [];
+  const summary = await processItems(
+    gists,
+    (gist) => Github.deleteGist(gist),
+    (gist) => style.strikethrough.dim(gist)
+  );
 
-  for (const gist of gists) {
-    const spinner = ora().start();
-
-    try {
-      await Github.deleteGist(gist);
-      deletedGists.push(gist);
-
-      spinner.stopAndPersist({ symbol: '', text: style.strikethrough.dim(gist) });
-    } catch (error) {
-      const message = error.response?.data?.message || error.message;
-
-      spinner.fail(style.dim(`${gist} (Oops! ${message})`));
-    }
-  }
-
-  if (deletedGists.length > 0) {
-    printConfirmation(deletedGists, 'gists', 'delete');
+  if (summary.processed.length > 0) {
+    printConfirmation(summary.processed, 'gists', 'delete');
   } else {
     printNoGistsDeleted();
   }
+
+  return summary;
 }
 
 async function promptConfirm(count, type, action) {
